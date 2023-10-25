@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "948404729293",
+    "project_id": "middle-chase",
+    "storage_bucket": "middle-chase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:948404729293:android:f51e331b76f25deabc4084",
+        "android_client_info": {
+          "package_name": "com.pennyworth.middlechase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "948404729293-23g8hdpje6nriac3q951v9br8jvvh0b5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB62ogbjBs6V8gP4BluvaiVkkwxT3H7OWg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "948404729293-23g8hdpje6nriac3q951v9br8jvvh0b5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "948404729293-8dog312mf1ukdcsvpieib7pa6ie8qa6t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.pennyworth.middlechase",
+                "app_store_id": "1634678317"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
