@@ -41,24 +41,26 @@ const Map<String, Color> colors = {
 };
 
 class Endpoints {
-  static const baseUrl = "https://lyticalfamanapp.azurewebsites.net/";
-  static const getOtp = "api/SignIn/getOtp";
-  static const getResident = "api/SignIn/getResident";
-  static const invoice = "api/Finance/invoice/";
-  static const invoicePayment = "api/Finance/payment";
-  static const powerSource = "api/Power/estate-source";
-  static const powerSupply = "api/Power/estate-supply";
   static const attendance = "api/Admin/attendance";
-  static const serviceCharge = "api/Finance/service-charge";
-  static const getResidentInfo = "api/Admin/resident/";
+  static const baseUrl = "https://pennyworth-saas.azurewebsites.net/api/";
+  static const bookFacility = "api/Facility/book";
+  static const bookedFacility = "api/Facility/booked/items/";
+  static const checkBookingAvailability = "api/Facility/book-validity";
   static const complaint = "api/Communication/complaint";
   static const facilities = "api/Facility/estate-assets";
-  static const bookFacility = "api/Facility/book";
-  static const checkBookingAvailability = "api/Facility/book-validity";
-  static const bookedFacility = "api/Facility/booked/items/";
   static const facilityPayment = "api/Facility/payment";
+  static const getOtp = "api/SignIn/getOtp";
+  static const getResident = "api/SignIn/getResident";
+  static const getResidentInfo = "api/Admin/resident/";
+  static const invoice = "api/Finance/invoice/";
+  static const invoicePayment = "api/Finance/payment";
+  static const login = "Auth/login-resident";
+  static const powerSource = "api/Power/estate-source";
+  static const powerSupply = "api/Power/estate-supply";
   static const requestLinkResend = "api/Admin/refreshActivationLink/";
   static const sendPanicMessage =
       "https://us-central1-middle-chase.cloudfunctions"
       ".net/sendPanicToEstateResident";
+
+  static const serviceCharge = "api/Finance/service-charge";
 }

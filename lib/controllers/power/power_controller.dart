@@ -8,17 +8,18 @@ import 'package:residents/models/estate_office/resident.dart';
 import 'package:residents/models/power/power.dart';
 import 'package:residents/services/api_service.dart';
 
-class PowerController extends GetxController with StateMixin<List<PowerSupply>> {
+class PowerController extends GetxController
+    with StateMixin<List<PowerSupply>> {
   final powerSources = Rx<List<PowerSource>>([]);
   final powerSupplies = Rx<List<PowerSupply>>([]);
   final AuthController authController = Get.find();
 
-  final resident = Resident().obs;
+  late Rx<Resident> resident;
 
   @override
   void onInit() {
     super.onInit();
-    resident(authController.resident.value);
+    resident = authController.resident as Rx<Resident>;
     fetchSupplies();
   }
 
@@ -26,7 +27,7 @@ class PowerController extends GetxController with StateMixin<List<PowerSupply>> 
     try {
       change([], status: RxStatus.loading());
       final estateId = resident.value.estateId ?? "";
-      final endpoint = "${Endpoints.baseUrl}${Endpoints.powerSource}/$estateId" ;
+      final endpoint = "${Endpoints.baseUrl}${Endpoints.powerSource}/$estateId";
       final response = await ApiService.getRequest(endpoint);
       if (response['status']) {
         powerSources.value = parsePowerSources(response['response']);
@@ -36,7 +37,9 @@ class PowerController extends GetxController with StateMixin<List<PowerSupply>> 
         return false;
       }
     } on SocketException catch (_) {
-      change([], status: RxStatus.error("Network error! Please check your connection."));
+      change([],
+          status:
+              RxStatus.error("Network error! Please check your connection."));
       return false;
     } catch (error) {
       change([], status: RxStatus.error("Error fetching power sources"));
@@ -49,7 +52,8 @@ class PowerController extends GetxController with StateMixin<List<PowerSupply>> 
       change([], status: RxStatus.loading());
       final estateId = resident.value.estateId ?? "";
       const endPoint = Endpoints.baseUrl + Endpoints.powerSupply;
-      final response = await ApiService.getRequest(endPoint, param: {'estateId': estateId});
+      final response = await ApiService.getRequest(endPoint,
+          param: {'estateId': estateId.toString()});
       if (response['status']) {
         powerSupplies.value = parsePowerSupply(response['response']);
         change(powerSupplies.value, status: RxStatus.success());
@@ -59,7 +63,9 @@ class PowerController extends GetxController with StateMixin<List<PowerSupply>> 
         return false;
       }
     } on SocketException catch (_) {
-      change([], status: RxStatus.error("Network error! Please check your connection."));
+      change([],
+          status:
+              RxStatus.error("Network error! Please check your connection."));
       return false;
     } catch (error) {
       change([], status: RxStatus.error("Failed to fetch power supplies."));
@@ -72,7 +78,8 @@ class PowerController extends GetxController with StateMixin<List<PowerSupply>> 
     temp.addAll(powerSupplies.value);
     if (source.isNotEmpty) {
       List<PowerSupply> result = temp;
-      result.retainWhere((supply) => supply.source!.toLowerCase().contains(source.toLowerCase()));
+      result.retainWhere((supply) =>
+          supply.source!.toLowerCase().contains(source.toLowerCase()));
       change(result, status: RxStatus.success());
     } else {
       change(powerSupplies.value, status: RxStatus.success());

@@ -23,7 +23,7 @@ class _ContactsListState extends State<ContactsList> {
   void initState() {
     super.initState();
     _estateGroup = controller.resident.value.estateName ?? "Estate";
-    _estateId = controller.resident.value.estateId ?? "";
+    _estateId = controller.resident.value.estateId.toString() ?? "";
   }
 
   @override

@@ -7,12 +7,12 @@ class Product {
   final List<String> images;
   final double price;
   final double? size;
-  final FirebaseResident seller;
+  final FirebaseResident? seller;
   final String sellerId;
   final bool outOfStock;
 
   Product({
-    required this.seller,
+    this.seller,
     required this.images,
     required this.name,
     required this.price,
@@ -48,7 +48,7 @@ class Product {
       "price": price,
       "size": size,
       "out_of_stock": outOfStock,
-      "seller": seller.toSnapshot(),
+      "seller": seller?.toSnapshot(),
       "sellerId": sellerId
     };
   }

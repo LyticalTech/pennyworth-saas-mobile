@@ -59,10 +59,10 @@ class FirebaseResident {
       fullName: resident.fullName,
       phoneNumber: resident.phone ?? "",
       email: resident.email ?? "",
-      houseId: resident.houseId ?? "",
-      estateId: resident.estateId ?? "",
+      houseId: resident.houseId.toString(),
+      estateId: resident.estateId.toString() ?? "",
       estateName: resident.estateName ?? "",
-      uid: resident.id,
+      uid: resident.id.toString(),
     );
   }
 

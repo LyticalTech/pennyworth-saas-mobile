@@ -21,7 +21,7 @@ class _SOSState extends State<SOS> {
 
   @override
   void initState() {
-    resident = authController.resident.value;
+    resident = authController.resident.value!;
     super.initState();
   }
 
@@ -123,7 +123,7 @@ class _SOSState extends State<SOS> {
 
   void _onPanicButtonTapped() async {
     final sendMessage = await controller.sendPanicMessage(
-      estateId: resident.estateId ?? "",
+      estateId: resident.estateId.toString() ?? "",
       residentName: resident.fullName,
       residentAddress: resident.houseAddress ?? "",
     );

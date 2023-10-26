@@ -8,12 +8,13 @@ import 'package:residents/controllers/auth/auth_controller.dart';
 import 'package:residents/helpers/constants.dart';
 import 'package:residents/models/estate_office/attendance.dart';
 import 'package:residents/models/estate_office/messages.dart';
-import 'package:residents/models/estate_office/resident.dart';
 import 'package:residents/services/api_service.dart';
+import '../../models/estate_office/resident.dart';
 
-class EstateOfficeController extends GetxController with StateMixin<List<Attendance>> {
+class EstateOfficeController extends GetxController
+    with StateMixin<List<Attendance>> {
   final attendance = <Attendance>[].obs;
-  final resident = Resident().obs;
+  late Rx<Resident> resident;
   final hasFetchedResidents = false.obs;
   final AuthController authController = Get.find();
 
@@ -22,14 +23,16 @@ class EstateOfficeController extends GetxController with StateMixin<List<Attenda
   @override
   void onInit() async {
     super.onInit();
-    resident(authController.resident.value);
+    // resident(authController.resident.value);
+    resident.value = authController.resident.value;
     await getServices();
   }
 
   Future<bool> fetchAttendance() async {
     try {
       change([], status: RxStatus.loading());
-      final response = await get(Uri.parse(Endpoints.baseUrl + Endpoints.attendance));
+      final response =
+          await get(Uri.parse(Endpoints.baseUrl + Endpoints.attendance));
       if (response.statusCode == 200) {
         attendance.value = parseAttendance(response.body);
         change(attendance, status: RxStatus.success());
@@ -64,7 +67,8 @@ class EstateOfficeController extends GetxController with StateMixin<List<Attenda
   Future<bool> fetchMessages() async {
     try {
       change([], status: RxStatus.loading());
-      final response = await get(Uri.parse(Endpoints.baseUrl + Endpoints.attendance));
+      final response =
+          await get(Uri.parse(Endpoints.baseUrl + Endpoints.attendance));
       if (response.statusCode == 200) {
         return false;
       } else {
@@ -116,11 +120,16 @@ class EstateOfficeController extends GetxController with StateMixin<List<Attenda
     Future.wait([fetchAttendance()]);
   }
 
-  Future<bool> submitComplaint({required String title, required String msg}) async {
+  Future<bool> submitComplaint(
+      {required String title, required String msg}) async {
     final authUserEmail = resident.value.email;
     assert(authUserEmail != null);
 
-    Map<String, String> message = {"title": title, "message": msg, "residentEmail": authUserEmail!};
+    Map<String, String> message = {
+      "title": title,
+      "message": msg,
+      "residentEmail": authUserEmail!
+    };
 
     try {
       loading.value = true;

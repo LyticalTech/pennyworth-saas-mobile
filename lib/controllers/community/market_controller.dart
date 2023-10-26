@@ -39,10 +39,10 @@ class CommerceController extends GetxController {
   );
 
   final AuthController authController = Get.find();
-  final resident = Resident().obs;
+  // final resident = Resident().obs;
 
   CommerceController() {
-    resident(authController.resident.value);
+    // resident(authController.resident.value);
   }
 
   void toggleAddProduct(Product product) {
@@ -95,8 +95,8 @@ class CommerceController extends GetxController {
 
     if (uploadedMediaUrls.isNotEmpty) {
       Product product = Product(
-        seller: FirebaseResident.fromResident(resident.value),
-        sellerId: resident.value.id!,
+        // seller: FirebaseResident.fromResident(.value),
+        sellerId:" resident.value.id",
         images: uploadedMediaUrls,
         name: nameController.text,
         price: double.parse(amountController.text),

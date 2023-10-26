@@ -33,7 +33,7 @@ class _ChatsState extends State<Chats> {
   void initState() {
     super.initState();
     _estateGroup = _controller.resident.value.estateName ?? "Estate";
-    _estateId = _controller.resident.value.estateId ?? "";
+    _estateId = _controller.resident.value.estateId.toString() ?? "";
   }
 
   @override
@@ -69,7 +69,7 @@ class _ChatsState extends State<Chats> {
               ),
               Expanded(
                 child: StreamBuilder<DatabaseEvent>(
-                  stream: ChatService.fetchUserConvoHistory(residentId),
+                  stream: ChatService.fetchUserConvoHistory(residentId.toString()),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       final result = snapshot.data!.snapshot.value as Map<dynamic, dynamic>?;

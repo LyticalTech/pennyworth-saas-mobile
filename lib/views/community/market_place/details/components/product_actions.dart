@@ -22,7 +22,8 @@ class _ProductActionsState extends State<ProductActions> {
 
   final CommerceController _commerceController = Get.find();
 
-  bool isProductSeller() => widget.product.seller.email == _chatController.resident.value.email;
+  bool isProductSeller() =>
+      widget.product.seller!.email == _chatController.resident.value.email;
 
   late bool _isAvailable = false;
   late String _residentId;
@@ -30,7 +31,7 @@ class _ProductActionsState extends State<ProductActions> {
   @override
   void initState() {
     _isAvailable = widget.product.outOfStock;
-    _residentId = _chatController.resident.value.id!;
+    _residentId = _chatController.resident.value.id.toString();
     super.initState();
   }
 
@@ -40,8 +41,9 @@ class _ProductActionsState extends State<ProductActions> {
       remoteUserId: widget.product.sellerId,
     );
     conversationId ??= "${_residentId}_${widget.product.sellerId}";
-    widget.product.seller.updateUid = widget.product.sellerId;
-    Get.to(() => MessagesScreen(remoteUser: widget.product.seller, conversationID: conversationId));
+    widget.product.seller?.updateUid = widget.product.sellerId;
+    Get.to(() => MessagesScreen(
+        remoteUser: widget.product.seller, conversationID: conversationId));
   }
 
   @override
@@ -56,7 +58,8 @@ class _ProductActionsState extends State<ProductActions> {
                   value: _isAvailable,
                   onChanged: (value) async {
                     setState(() => _isAvailable = !_isAvailable);
-                    await _commerceController.toggleProduct(widget.product, _isAvailable);
+                    await _commerceController.toggleProduct(
+                        widget.product, _isAvailable);
                   },
                 ),
               ],
@@ -68,7 +71,8 @@ class _ProductActionsState extends State<ProductActions> {
                     height: 50,
                     child: TextButton(
                       style: TextButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         backgroundColor: AppTheme.primaryColor,
                       ),
                       onPressed: _gotoConversationScreen,

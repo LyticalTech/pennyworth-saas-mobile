@@ -1,76 +1,62 @@
 class Resident {
-  String? id;
-  String? firstName;
-  String? lastName;
-  String? email;
-  String? phone;
-  String? gender;
-  String? maritalStatus;
-  bool? isDependant;
-  String? accessToken;
-  List<dynamic>? dependants;
-  String? houseId;
-  String? houseAddress;
-  String? estateId;
-  String? estateAddress;
-  String? estateName;
+  final int id;
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String phone;
+  final bool isDependant;
+  final int houseId;
+  final String houseAddress;
+  final String estateAddress;
+  final String estateName;
+  final int estateId;
+  final int userType;
+  final String address;
+  final String? tenantTheme;
+  final String accessToken;
+  final int role;
 
   Resident({
-    this.id,
-    this.firstName,
-    this.lastName,
-    this.email,
-    this.phone,
-    this.gender,
-    this.maritalStatus,
-    this.isDependant,
-    this.accessToken,
-    this.dependants,
-    this.houseId,
-    this.houseAddress,
-    this.estateId,
-    this.estateAddress,
-    this.estateName,
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    required this.phone,
+    required this.isDependant,
+    required this.houseId,
+    required this.houseAddress,
+    required this.estateAddress,
+    required this.estateName,
+    required this.estateId,
+    required this.userType,
+    required this.address,
+    required this.tenantTheme,
+    required this.accessToken,
+    required this.role,
   });
 
-  String get fullName => "${firstName ?? ""} ${lastName ?? ""}";
-
-  Resident.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    firstName = json['firstName'];
-    lastName = json['lastName'];
-    email = json['email'];
-    phone = json['phone'];
-    gender = json['gender'];
-    maritalStatus = json['maritalStatus'];
-    isDependant = json['isDependant'];
-    accessToken = json['accessToken'];
-    dependants = json['dependants'];
-    houseId = json['houseId'];
-    houseAddress = json['houseAddress'];
-    estateId = json['estateId'];
-    estateAddress = json['estateAddress'];
-    estateName = json['name'];
+  factory Resident.fromJson(Map<String, dynamic> json) {
+    return Resident(
+      id: json['data']['id'],
+      firstName: json['data']['firstName'],
+      lastName: json['data']['lastName'],
+      email: json['data']['email'],
+      phone: json['data']['phone'],
+      isDependant: json['data']['isDependant'],
+      houseId: json['data']['houseId'],
+      houseAddress: json['data']['houseAddress'],
+      estateAddress: json['data']['estateAddress'],
+      estateName: json['data']['estateName'],
+      estateId: json['data']['estateId'],
+      userType: json['data']['userType'],
+      address: json['data']['estateAddress'],
+      tenantTheme: json['data']['tenantTheme'],
+      accessToken: json['data']['accessToken'],
+      role: json['data']['role'],
+    );
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['firstName'] = firstName;
-    data['lastName'] = lastName;
-    data['email'] = email;
-    data['phone'] = phone;
-    data['gender'] = gender;
-    data['maritalStatus'] = maritalStatus;
-    data['isDependant'] = isDependant;
-    data['accessToken'] = accessToken;
-    data['dependants'] = dependants;
-    data['houseId'] = houseId;
-    data['houseAddress'] = houseAddress;
-    data['estateId'] = estateId;
-    data['estateAddress'] = estateAddress;
-    data['name'] = estateName;
-
-    return data;
+  String get fullName {
+    return '$firstName $lastName';
   }
 }

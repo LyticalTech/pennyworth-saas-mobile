@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -13,12 +12,10 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:residents/components/please_wait_dialog.dart';
 import 'package:residents/controllers/shield/house_controller.dart';
 import 'package:residents/controllers/shield/image_controller.dart';
-import 'package:residents/helpers/constants.dart';
 import 'package:residents/models/estate_office/resident.dart';
 import 'package:residents/models/other/app_user.dart';
 import 'package:residents/models/other/firebase_resident.dart';
@@ -34,6 +31,7 @@ import 'package:residents/views/welcome.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../utils/constants.dart';
+import '../../utils/logger.dart';
 import '../../views/auth/failed_screen.dart';
 
 class AuthController extends GetxController {
@@ -44,11 +42,9 @@ class AuthController extends GetxController {
   late FirebaseApp _guards;
   late FirebaseAuth _guardsAuth;
   late final AuthServices _authServices;
-  final resident = Resident().obs;
+  late Rx<Resident> resident;
 
   final selectedHouseAddress = ''.obs;
-
-  // final selectedEstate = Estate().obs;
 
   late final List<String> sex = ['Female', 'Male', 'Others'];
 
@@ -61,7 +57,7 @@ class AuthController extends GetxController {
     'Widowed'
   ];
 
-  final loading = false.obs;
+  final isLoading = false.obs;
 
   final FirebaseFunctions _functions = FirebaseFunctions.instance;
 
@@ -119,25 +115,14 @@ class AuthController extends GetxController {
     final authUserId = preference.getString("authUserId", "");
     isAuthenticated.value = accessToken.isNotEmpty && authUserId.isNotEmpty;
     if (isAuthenticated.value) {
-      final residentInfo = fetchUserFromPref();
-      resident(residentInfo);
-      notificationService =
-          PushNotificationService(messaging: messaging, resident: residentInfo);
+      // final residentInfo = fetchUserFromPref();
+      // resident(residentInfo);
+      // notificationService =
+      //     PushNotificationService(messaging: messaging, resident: residentInfo);
     }
-    // _retrieveInitialLink().whenComplete(() => _listenForLink());
-    // _listenForUser();
+
     super.onInit();
   }
-
-  // Future<void> setupAuthUser(String uid) async {
-  //   await FirebaseFirestore.instance
-  //       .collection("users")
-  //       .doc(uid)
-  //       .get()
-  //       .then((DocumentSnapshot snapshot) async {
-  //     await appUserController.createAppUser(snapshot);
-  //   });
-  // }
 
   Future<void> switchAuthType() async {
     signup.value = !signup.value;
@@ -160,7 +145,7 @@ class AuthController extends GetxController {
     if (signup()) {
       signUp();
     } else {
-      signIn();
+      // signIn();
     }
   }
 
@@ -178,9 +163,7 @@ class AuthController extends GetxController {
           );
         });
       }
-    }).onError((error) {
-      // Handle errors
-    });
+    }).onError((error) {});
   }
 
   Future<Object> checkEmailAuthorization() async {
@@ -300,89 +283,23 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> signIn() async {
-    try {
-      await _auth.signInWithEmailAndPassword(
-          email: $email.text, password: $password.text);
-      await clearEditingControllers();
-      Get.showSnackbar(
-        const GetSnackBar(
-          duration: Duration(seconds: 3),
-          icon: Icon(
-            Icons.check,
-            color: Colors.green,
-          ),
-          message: 'User Signed In Successfully',
-        ),
-      );
-      Get.back();
-    } on FirebaseAuthException catch (e) {
-      Get.back();
-      Get.showSnackbar(
-        GetSnackBar(
-          duration: const Duration(seconds: 3),
-          icon: const Icon(
-            Icons.clear,
-            color: Colors.red,
-          ),
-          message: _handleSignUpError(e),
-        ),
-      );
-    } catch (e) {
-      Get.back();
-      Get.showSnackbar(
-        const GetSnackBar(
-          duration: Duration(seconds: 3),
-          icon: Icon(
-            Icons.clear,
-            color: Colors.red,
-          ),
-          message: "Unknown Error",
-        ),
-      );
-    }
+  Future<void> signIn({required String email, required String password}) async {
+    isLoading.value = true;
+    var res = await _authServices.signIn(email, password);
+    res.fold(
+      (l) => logger.e(l.errorResponse),
+      (r) {
+        resident = Rx(r);
+        logger.i(r.email);
+        Get.to(
+          () => WelcomeScreen(),
+          transition: Transition.fade,
+          duration: const Duration(seconds: 1),
+        );
+      },
+    );
+    isLoading.value = false;
   }
-
-  // Future<void> createAuthStateStream() async {
-  //   authStateStream = _auth.authStateChanges().listen((User? user) async {
-  //     if (user == null) {
-  //       Get.offAll(
-  //         () => AuthView(),
-  //         transition: Transition.fadeIn,
-  //         duration: const Duration(seconds: 1),
-  //       );
-  //     } else {
-  //       _user = user;
-  //       await _store
-  //           .collection(Constants.appUserRef)
-  //           .doc(user.uid)
-  //           .get()
-  //           .then((DocumentSnapshot snapshot) async {
-  //         AppUserController appUserController = Get.put(AppUserController());
-  //         await appUserController.createAppUser(snapshot);
-  //         Get.offAll(
-  //           () => WelcomeScreen(), // Home()
-  //           transition: Transition.fadeIn,
-  //           duration: const Duration(seconds: 1),
-  //         );
-  //       }).catchError((error) {
-  //         if (kDebugMode) {
-  //           print(error);
-  //         }
-  //         Get.showSnackbar(
-  //           GetSnackBar(
-  //             duration: const Duration(seconds: 3),
-  //             icon: const Icon(
-  //               Icons.clear,
-  //               color: Colors.red,
-  //             ),
-  //             message: error.toString(),
-  //           ),
-  //         );
-  //       });
-  //     }
-  //   });
-  // }
 
   Future<void> _addUserToFirestore(String houseId) async {
     User user = _auth.currentUser!;
@@ -420,7 +337,7 @@ class AuthController extends GetxController {
   }
 
   Future<void> signOut() async {
-    resident(Resident());
+    // resident(Resident());
     preference.clear();
   }
 
@@ -438,121 +355,11 @@ class AuthController extends GetxController {
     return;
   }
 
-  // Future<void> sendInfoForApproval(AppUser user) async {
-  //   Get.dialog(
-  //     const PleaseWaitDialog(),
-  //     barrierDismissible: false,
-  //   );
-  //
-  //   try {
-  //     await _authServices.emailExists(user.email).then((exists) {
-  //       if (!exists) {
-  //         registerInfo(user);
-  //       } else {
-  //         Get.back();
-  //         Get.showSnackbar(
-  //           const GetSnackBar(
-  //             duration: Duration(seconds: 3),
-  //             icon: Icon(
-  //               Icons.check,
-  //               color: Colors.green,
-  //             ),
-  //             message: "Account already exists with the same email!",
-  //           ),
-  //         );
-  //       }
-  //     });
-  //   } on Exception catch (_) {
-  //     Get.back();
-  //     Get.showSnackbar(
-  //       const GetSnackBar(
-  //         duration: Duration(seconds: 3),
-  //         icon: Icon(
-  //           Icons.check,
-  //           color: Colors.green,
-  //         ),
-  //         message: "Error creating account!",
-  //       ),
-  //     );
-  //   }
-  // }
-
-//   Future<void> registerInfo(AppUser user) async {
-//     try {
-//       await _authServices.persistUserInfo(user);
-//
-//       await _authServices.sendNewUserData(user);
-//
-//       Get.offAll(
-//         () => PendingApprovalScreen(
-//           body:
-//               '''We have received your information, our team will review and approve it for use on this platform.
-//
-// Watch out for a mail from us to complete the authentication process.
-//
-// If you have any issues or enquiry you can reach us at care@oakestate.com
-//
-// Thank you!
-//                         ''',
-//           press: () => exit(0),
-//           action: 'Close App',
-//           title: 'Application Received',
-//         ),
-//         transition: Transition.fadeIn,
-//         duration: const Duration(seconds: 1),
-//       );
-//     } on Exception catch (e) {
-//       Get.offAll(
-//         () => FailedApplicationScreen(
-//           title: 'Unable to Complete',
-//           body:
-//               '''Apologies! we are unable to complete your application at this time, due to the following issues $e
-//
-// Please try again or reach out to us at care@oakestate.com.
-//
-// If you have any issues or enquiry you can reach us at care@oakestate.com
-//
-// Thank you!
-//                       ''',
-//           action: "Try again",
-//           press: () => Get.offAll(
-//             () => SignUp(),
-//             transition: Transition.fadeIn,
-//             duration: const Duration(seconds: 1),
-//           ),
-//         ),
-//         transition: Transition.fadeIn,
-//         duration: const Duration(seconds: 1),
-//       );
-//     }
-//   }
-
   Future<void> _listenForLink() async {
     _authServices.linkStream().listen((PendingDynamicLinkData linkData) async {
       _handleLink(linkData);
     });
   }
-
-  // Future<void> _listenForUser() async {
-  //   authStateStream = _authServices.userStream().listen((User? user) async {
-  //     if (user != null) {
-  //       if (AppUserController.appUser == null) {
-  //         await setupAuthUser(user.uid);
-  //       }
-  //       Get.offAll(
-  //         () => WelcomeScreen(),
-  //         transition: Transition.fadeIn,
-  //         duration: const Duration(seconds: 1),
-  //       );
-  //     } else {
-  //       Get.offAll(
-  //         () => SignIn(),
-  //         transition: Transition.fadeIn,
-  //         duration: const Duration(seconds: 1),
-  //       );
-  //     }
-  //   });
-  // }
 
   Future<void> _handleLink(PendingDynamicLinkData linkData) async {
     final String link = linkData.link.toString();
@@ -567,61 +374,6 @@ class AuthController extends GetxController {
       Get.dialog(InputEmailDialog(link: link), barrierDismissible: false);
     }
   }
-
-//   Future<void> sendSignInLink(String email) async {
-//     Get.dialog(const PleaseWaitDialog());
-//     await _authServices.persistEmail(email);
-//     Object res = await _authServices.sendSignInLink(email);
-//
-//     if (res is Success) {
-//       Get.offAll(
-//         () => PendingApprovalScreen(
-//           body: '''An email link has been sent to $email.
-//
-// Please open email and follow link to complete sign in process.
-//
-// If you have any issues or enquiry you can reach us at care@oakestate.com
-//
-// Thank you!
-//                         ''',
-//           press: () {
-//             if (Platform.isAndroid) SystemNavigator.pop();
-//           },
-//           action: 'Close App',
-//           title: 'Email Link Sent',
-//         ),
-//         transition: Transition.fadeIn,
-//         duration: const Duration(seconds: 1),
-//       );
-//     } else {
-//       Failure failure = res as Failure;
-//
-//       log("This is the response: ${failure.errorResponse.toString()}");
-//
-//       Get.offAll(
-//         () => FailedApplicationScreen(
-//           title: 'Unable to Complete',
-//           body:
-//               '''Apologies! we are unable to complete your application at this time, due to the following issues $failure
-//
-// Please try again or reach out to us at care@oakestate.com.
-//
-// If you have any issues or enquiry you can reach us at care@oakestate.com
-//
-// Thank you!
-//                       ''',
-//           action: "Try again",
-//           press: () => Get.offAll(
-//             () => SignUp(),
-//             transition: Transition.fadeIn,
-//             duration: const Duration(seconds: 1),
-//           ),
-//         ),
-//         transition: Transition.fadeIn,
-//         duration: const Duration(seconds: 1),
-//       );
-//     }
-//   }
 
   Future<void> signInWithEmailLink(
       {required String email, required String link}) async {
@@ -699,21 +451,9 @@ class AuthController extends GetxController {
 
   Future<void> guardsSignOut() async {
     await _guardsAuth.signOut();
-    // RootWidget.restartApp(Get.context!);
   }
 
   static User getAuthUser() => FirebaseAuth.instance.currentUser!;
-
-  // Future<void> updateAppUser() async {
-  //   DocumentSnapshot snapshot = await FirebaseFirestore.instance
-  //       .collection("users")
-  //       .doc(_auth.currentUser!.uid)
-  //       .snapshots()
-  //       .single;
-  //
-  //   await appUserController.createAppUser(snapshot);
-  //   displayName.value = AppUserController.appUser?.firstName ?? "No name";
-  // }
 
   Future<void> updateAuthUserToken(String userId, String fcmToken) async {
     DocumentReference docRef =
@@ -726,72 +466,8 @@ class AuthController extends GetxController {
     });
   }
 
-  // Future<AppUser> getAuthUserFromFirestore() async {
-  //   DocumentSnapshot snapshot = await FirebaseFirestore.instance
-  //       .collection("users")
-  //       .doc(_auth.currentUser!.uid)
-  //       .snapshots()
-  //       .single;
-  //
-  //   await appUserController.createAppUser(snapshot);
-  //
-  //   return AppUser.fromSnapshot(snapshot);
-  // }
-
   Stream<QuerySnapshot<House>> fetchHouseAddresses(String estateId) {
     return houseController.getAllHouses(estateId);
-  }
-
-  // Stream<QuerySnapshot<Estate>> fetchEstates() {
-  //   return houseController.getAllEstates();
-  // }
-
-  Future<void> requestActivationLinkResend(
-      BuildContext context, String email) async {
-    try {
-      log("${Endpoints.baseUrl}${Endpoints.requestLinkResend}$email");
-
-      final response = await get(Uri.parse(
-          "${Endpoints.baseUrl}${Endpoints.requestLinkResend}$email"));
-
-      if (response.statusCode == 200) {
-        Get.showSnackbar(
-          GetSnackBar(
-            title: "Request Send",
-            message: "An activation link will be sent to you at $email!",
-            duration: Duration(seconds: 5),
-            backgroundColor: Colors.green,
-          ),
-        );
-      } else {
-        Get.showSnackbar(
-          GetSnackBar(
-            message: response.body,
-            duration: Duration(seconds: 5),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } on SocketException catch (_) {
-      Get.showSnackbar(
-        GetSnackBar(
-          title: "Network Error",
-          message: "Please check your connection!",
-          duration: Duration(seconds: 3),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } catch (error) {
-      Get.showSnackbar(
-        GetSnackBar(
-          message: "Unable to send email link!",
-          duration: Duration(seconds: 3),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      Navigator.pop(context);
-    }
   }
 
   Future<bool> addDependant(String authUserId, AppUser dependant) async {
@@ -814,110 +490,53 @@ class AuthController extends GetxController {
     return snapshot;
   }
 
-  Future<Map<String, dynamic>> getOtp(String email) async {
-    Get.dialog(const PleaseWaitDialog());
-    try {
-      final endPoint =
-          "${Endpoints.baseUrl}${Endpoints.getOtp}?emailAddress=$email";
-      final response = await post(Uri.parse(endPoint));
-      if (response.statusCode == 200) {
-        return {'success': true, 'message': response.body};
-      } else if (response.statusCode == 404) {
-        return {'success': false, 'message': "Resident with $email not found!"};
-      }
-      return {'success': false, 'message': "Error signing you in!"};
-    } on SocketException catch (_) {
-      return {'success': false, 'message': 'Please check your connection.'};
-    } catch (error) {
-      return {'success': false, 'message': 'Error processing login.'};
-    } finally {
-      Get.back();
-    }
-  }
+  // Future<void> saveResidentToFirebase(Resident resident) async {
+  //   DocumentReference docRef = _store.collection("residents").doc(resident.id);
 
-  Future<Map<String, dynamic>> signInWithOtp(Map<String, String> body) async {
-    Get.dialog(const PleaseWaitDialog());
-    try {
-      const endPoint = "${Endpoints.baseUrl}${Endpoints.getResident}";
-      final response = await post(
-        Uri.parse(endPoint),
-        body: jsonEncode(body),
-        headers: {'content-type': 'application/json'},
-      );
-      if (response.statusCode == 200) {
-        Map<String, dynamic> result = jsonDecode(response.body);
-        final residentReturned = Resident.fromJson(result);
-        resident(residentReturned);
-        saveUserToPreference(residentReturned);
-        await loginAndPrepFirebase();
-        saveResidentToFirebase(residentReturned);
-        return {'success': true, 'message': "Log in successful!"};
-      } else {
-        log(response.body.toString());
-        return {'success': false, 'message': "Error logging you in!"};
-      }
-    } on SocketException catch (_) {
-      return {'success': false, 'message': 'Please check your connection.'};
-    } catch (error) {
-      log(error.toString());
-      return {'success': false, 'message': 'Error processing login.'};
-    } finally {
-      Get.back();
-    }
-  }
+  //   docRef.get().then((snapshot) {
+  //     if (!snapshot.exists) {
+  //       _store
+  //           .collection("residents")
+  //           .doc(resident.id)
+  //           .set(FirebaseResident.fromResident(resident).toSnapshot());
+  //     }
+  //   });
+  // }
 
-  Future<void> saveResidentToFirebase(Resident resident) async {
-    /// Check if resident is already on firebase
-    /// Add to the resident collection if not
-    ///
-    DocumentReference docRef = _store.collection("residents").doc(resident.id);
+  // Future<void> saveUserToPreference(Resident resident) async {
+  //   preference.setString("accessToken", resident.accessToken ?? "");
+  //   preference.setString("authUserId", resident.id ?? "");
+  //   preference.setString("firstName", resident.firstName ?? "");
+  //   preference.setString("lastName", resident.lastName ?? "");
+  //   preference.setString("email", resident.email ?? "");
+  //   preference.setString("phone", resident.phone ?? "");
+  //   preference.setString("gender", resident.gender ?? "");
+  //   preference.setString("maritalStatus", resident.maritalStatus ?? "");
+  //   preference.setString("houseId", resident.houseId ?? "");
+  //   preference.setString("houseAddress", resident.houseAddress ?? "");
+  //   preference.setString("estateId", resident.estateId ?? "");
+  //   preference.setString("estateAddress", resident.estateAddress ?? "");
+  //   preference.setString("estateName", resident.estateName ?? "");
+  // }
 
-    docRef.get().then((snapshot) {
-      if (!snapshot.exists) {
-        _store
-            .collection("residents")
-            .doc(resident.id)
-            .set(FirebaseResident.fromResident(resident).toSnapshot());
-      }
-    });
-  }
+  // Resident fetchUserFromPref() {
+  //   final resident = Resident()
+  //     ..accessToken = preference.getString("accessToken", "")
+  //     ..id = preference.getString("authUserId", "")
+  //     ..firstName = preference.getString("firstName", "")
+  //     ..lastName = preference.getString("lastName", "")
+  //     ..email = preference.getString("email", "")
+  //     ..phone = preference.getString("phone", "")
+  //     ..gender = preference.getString("gender", "")
+  //     ..maritalStatus = preference.getString("maritalStatus", "")
+  //     ..houseId = preference.getString("houseId", "")
+  //     ..houseAddress = preference.getString("houseAddress", "")
+  //     ..estateId = preference.getString("estateId", "")
+  //     ..estateAddress = preference.getString("estateAddress", "")
+  //     ..estateName = preference.getString("estateName", "");
 
-  Future<void> saveUserToPreference(Resident resident) async {
-    preference.setString("accessToken", resident.accessToken ?? "");
-    preference.setString("authUserId", resident.id ?? "");
-    preference.setString("firstName", resident.firstName ?? "");
-    preference.setString("lastName", resident.lastName ?? "");
-    preference.setString("email", resident.email ?? "");
-    preference.setString("phone", resident.phone ?? "");
-    preference.setString("gender", resident.gender ?? "");
-    preference.setString("maritalStatus", resident.maritalStatus ?? "");
-    preference.setString("houseId", resident.houseId ?? "");
-    preference.setString("houseAddress", resident.houseAddress ?? "");
-    preference.setString("estateId", resident.estateId ?? "");
-    preference.setString("estateAddress", resident.estateAddress ?? "");
-    preference.setString("estateName", resident.estateName ?? "");
-  }
-
-  Resident fetchUserFromPref() {
-    final resident = Resident()
-      ..accessToken = preference.getString("accessToken", "")
-      ..id = preference.getString("authUserId", "")
-      ..firstName = preference.getString("firstName", "")
-      ..lastName = preference.getString("lastName", "")
-      ..email = preference.getString("email", "")
-      ..phone = preference.getString("phone", "")
-      ..gender = preference.getString("gender", "")
-      ..maritalStatus = preference.getString("maritalStatus", "")
-      ..houseId = preference.getString("houseId", "")
-      ..houseAddress = preference.getString("houseAddress", "")
-      ..estateId = preference.getString("estateId", "")
-      ..estateAddress = preference.getString("estateAddress", "")
-      ..estateName = preference.getString("estateName", "");
-
-    return resident;
-  }
-
-  /// FIREBASE ANONYMOUS AUTH
+  //   return resident;
+  // }
 
   Future<void> loginAndPrepFirebase() async {
     _auth.authStateChanges().listen((user) async {
@@ -925,7 +544,7 @@ class AuthController extends GetxController {
         try {
           final userCredential = await _auth.signInAnonymously();
           firebaseAuthUser = userCredential.user;
-          prepFirebaseMessaging();
+          // prepFirebaseMessaging();
         } on FirebaseAuthException catch (e) {
           switch (e.code) {
             case "operation-not-allowed":
@@ -941,14 +560,14 @@ class AuthController extends GetxController {
     });
   }
 
-  void prepFirebaseMessaging() {
-    final FirebaseMessaging messaging = FirebaseMessaging.instance;
-    final notificationService = PushNotificationService(
-      messaging: messaging,
-      resident: resident.value,
-    );
-    notificationService.initialise();
-  }
+  // void prepFirebaseMessaging() {
+  //   final FirebaseMessaging messaging = FirebaseMessaging.instance;
+  //   final notificationService = PushNotificationService(
+  //     messaging: messaging,
+  //     resident: resident.value,
+  //   );
+  //   notificationService.initialise();
+  // }
 
   Future<FirebaseResident?> fetchFirestoreUser(String docRef) async {
     return await _store

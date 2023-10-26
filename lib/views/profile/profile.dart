@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:residents/components/text.dart';
 import 'package:residents/controllers/auth/auth_controller.dart';
 import 'package:residents/models/estate_office/resident.dart';
+import 'package:residents/utils/logger.dart';
 import 'package:residents/views/profile/add_dependants.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -19,7 +20,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void initState() {
-    _resident = controller.resident.value;
+    _resident = controller.resident.value!;
+    logger.i(_resident.isDependant);
     super.initState();
   }
 
@@ -44,10 +46,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _rowItem("Name", _resident.fullName),
             _rowItem("Phone", _resident.phone ?? ""),
             _rowItem("Email", _resident.email ?? ""),
-            _rowItem("Gender", _resident.gender ?? ""),
+            _rowItem("Gender", _resident.address ?? ""),
             _rowItem("Address", _resident.houseAddress ?? ""),
             SizedBox(height: 24),
-            CustomText("Additional Info", size: 20, fontWeight: FontWeight.w600),
+            CustomText("Additional Info",
+                size: 20, fontWeight: FontWeight.w600),
             _dependantsList(),
           ],
         ),
@@ -56,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _dependantsList() {
-    final residentDependants = _resident.dependants ?? [];
+    final residentDependants = [];
     if (residentDependants.isNotEmpty) {
       List<Widget> dependants = [];
       for (final dependant in residentDependants) {
@@ -79,14 +82,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Padding(
             padding: EdgeInsets.symmetric(vertical: 12.0),
-            child: SizedBox(width: 80, child: CustomText(title, size: 16, color: Colors.black45)),
+            child: SizedBox(
+                width: 80,
+                child: CustomText(title, size: 16, color: Colors.black45)),
           ),
           Expanded(
             child: Container(
               margin: EdgeInsets.only(left: 8),
               padding: EdgeInsets.symmetric(vertical: 12.0),
               decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(width: 0.5, color: Colors.black26)),
+                border: Border(
+                    bottom: BorderSide(width: 0.5, color: Colors.black26)),
               ),
               child: CustomText(value, size: 16),
             ),

@@ -9,7 +9,7 @@
         </intent>
     </queries>
    <application
-        android:label="Middle Chase"
+        android:label="Pennyworth Sass"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

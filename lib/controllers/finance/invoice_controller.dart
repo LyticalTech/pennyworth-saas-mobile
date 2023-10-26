@@ -20,7 +20,7 @@ class FinanceController extends GetxController with StateMixin<List<Invoice>> {
   List<Invoice> invoices = <Invoice>[].obs;
   List<ServiceCharge> serviceCharges = <ServiceCharge>[].obs;
   final AuthController authController = Get.find();
-  final resident = Resident().obs;
+  late Rx<Resident> resident;
 
   final currentPage = 0.obs;
 
@@ -35,7 +35,8 @@ class FinanceController extends GetxController with StateMixin<List<Invoice>> {
   @override
   void onInit() {
     super.onInit();
-    resident(authController.resident.value);
+    resident.value = authController.resident.value!;
+
     getServices();
   }
 
@@ -76,7 +77,8 @@ class FinanceController extends GetxController with StateMixin<List<Invoice>> {
           }
           return invoices.isNotEmpty;
         } else {
-          change([], status: RxStatus.error("You currently do not have any invoice!"));
+          change([],
+              status: RxStatus.error("You currently do not have any invoice!"));
           return invoices.isNotEmpty;
           // throw Exception("You currently do not have any invoice!");
         }
@@ -135,7 +137,7 @@ class FinanceController extends GetxController with StateMixin<List<Invoice>> {
         paymentOptions: "ussd, card",
         customization: Customization(title: "Invoice Payment"),
         isTestMode: false,
-        
+
         // style: style,
         redirectUrl: 'lyticaltechnology.com/verify',
       );

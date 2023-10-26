@@ -19,13 +19,12 @@ class ContactItem extends StatefulWidget {
 }
 
 class _ContactItemState extends State<ContactItem> {
-
   final AuthController _authController = Get.find();
   late Resident resident;
 
   @override
   void initState() {
-    resident = _authController.resident.value;
+    resident = _authController.resident.value!;
     super.initState();
   }
 

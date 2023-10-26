@@ -5,12 +5,14 @@ class AuthButton extends StatelessWidget {
   final String title;
   final VoidCallback press;
   final Color color, textColor;
+  final bool isLoading;
   const AuthButton({
     Key? key,
     required this.title,
     required this.press,
     required this.color,
     this.textColor = Colors.white,
+    this.isLoading = false,
   }) : super(key: key);
 
   @override
@@ -20,26 +22,29 @@ class AuthButton extends StatelessWidget {
       width: Get.width * 0.8,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(29),
-        child: TextButton(
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-            backgroundColor: color,
-          ),
-          onPressed: press,
-          child: FittedBox(
-            fit: BoxFit.contain,
-            child: Text(
-              title,
-              style: TextStyle(
-                  color: textColor,
-                  letterSpacing: 5,
-                  wordSpacing: 3,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w900,
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : TextButton(
+                style: TextButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+                  backgroundColor: color,
+                ),
+                onPressed: press,
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      color: textColor,
+                      letterSpacing: 5,
+                      wordSpacing: 3,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
       ),
     );
   }

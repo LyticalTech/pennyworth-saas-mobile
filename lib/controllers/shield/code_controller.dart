@@ -109,7 +109,7 @@ class CodeController extends GetxController {
 
     // if (_house.reservedKey != null && _house.reservedKey!.isNotEmpty) {
     _inactiveCodeCollection =
-        _store.collection('codes/${authController.resident.value.houseId}/past_codes');
+        _store.collection('codes/${authController.resident.value?.houseId}/past_codes');
     // }
   }
 
@@ -128,9 +128,9 @@ class CodeController extends GetxController {
     String generatedCode = isoString.substring(isoString.length - 5);
 
     code = Code(
-      houseId: authController.resident.value.houseId ?? "",
+      houseId: authController.resident.value?.houseId.toString() ?? "",
       status: 'active',
-      createdBy: authController.resident.value.id ?? "",
+      createdBy: authController.resident.value?.id.toString() ?? "",
       createdAt: DateTime.now(),
       expires: getExpirationTime(),
       code: generatedCode,
@@ -232,7 +232,7 @@ class CodeController extends GetxController {
 
   Future<void> shareCodeOnWhatsApp() async {
     String residentsName = FirebaseAuth.instance.currentUser?.displayName ?? 'A resident';
-    String homeAddress = authController.resident.value.houseAddress ?? "";
+    String homeAddress = authController.resident.value!.houseAddress ?? "";
     final link = WhatsAppUnilink(
       text: """Hey! 
 You have been invited to $homeAddress by $residentsName.
@@ -287,15 +287,15 @@ Powered by $lytical
 
   Stream<List<Code>> get activeCodes {
     return _activeCodeCollection
-        .where('houseId', isEqualTo: authController.resident.value.houseId)
-        .where('createdBy', isEqualTo: authController.resident.value.id)
+        .where('houseId', isEqualTo: authController.resident.value!.houseId)
+        .where('createdBy', isEqualTo: authController.resident.value!.id)
         .snapshots()
         .map(_allCodesBelongingToHousehold);
   }
 
   Stream<List<Code>> get inactiveCodes {
     return _inactiveCodeCollection
-        .where('createdBy', isEqualTo: authController.resident.value.id)
+        .where('createdBy', isEqualTo: authController.resident.value!.id)
         .snapshots()
         .map(_allCodesBelongingToHousehold);
   }

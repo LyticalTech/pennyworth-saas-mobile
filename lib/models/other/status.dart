@@ -5,7 +5,7 @@ class Success {
 }
 
 class Failure {
-  String code;
-  Object errorResponse;
-  Failure({required this.code, required this.errorResponse});
+  String? code;
+  Object? errorResponse;
+  Failure({this.code, required this.errorResponse});
 }

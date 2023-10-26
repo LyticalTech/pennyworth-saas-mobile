@@ -14,14 +14,15 @@ import 'package:residents/services/api_service.dart';
 import 'package:residents/utils/environment.dart';
 import 'package:residents/utils/flutterwave_style.dart';
 
-class FacilityController extends GetxController with StateMixin<List<FacilityResponse>> {
+class FacilityController extends GetxController
+    with StateMixin<List<FacilityResponse>> {
   TextEditingController fromDateTimeController = TextEditingController();
   TextEditingController toDateTimeController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController slotController = TextEditingController();
 
   final AuthController authController = Get.find();
-  final resident = Resident().obs;
+  var resident;
 
   final facilities = <FacilityResponse>[].obs;
   final loading = false.obs;
@@ -31,7 +32,8 @@ class FacilityController extends GetxController with StateMixin<List<FacilityRes
   @override
   void onInit() {
     super.onInit();
-    resident(authController.resident.value);
+    resident = authController.resident;
+    // resident(authController.resident.value);
     getAvailableFacilities();
   }
 
@@ -40,14 +42,18 @@ class FacilityController extends GetxController with StateMixin<List<FacilityRes
       change([], status: RxStatus.loading());
       final estateId = resident.value.estateId ?? "";
       String endpoint = "${Endpoints.baseUrl}${Endpoints.facilities}";
-      final response = await ApiService.getRequest(endpoint, param: {'estateId': estateId});
+      final response =
+          await ApiService.getRequest(endpoint, param: {'estateId': estateId});
       if (response['status']) {
-        List<FacilityResponse> parsedResponse = parseFacilityResponse(response['response']);
+        List<FacilityResponse> parsedResponse =
+            parseFacilityResponse(response['response']);
         facilities.value = parsedResponse;
       }
       change(facilities, status: RxStatus.success());
     } on SocketException catch (_) {
-      change([], status: RxStatus.error("Network error! Please check your connection."));
+      change([],
+          status:
+              RxStatus.error("Network error! Please check your connection."));
     } catch (error) {
       change([], status: RxStatus.error("Failed to fetch facilities."));
     }
@@ -78,10 +84,14 @@ class FacilityController extends GetxController with StateMixin<List<FacilityRes
         "residentEmail": resident.value.email,
         "description": descriptionController.text.trim(),
         "bookedSlot": slotController.text.trim(),
-        "startDate": DateTime.parse(fromDateTimeController.text.trim()).toIso8601String(),
-        "endDate": DateTime.parse(toDateTimeController.text.trim()).toIso8601String(),
-        "startTime": DateTime.parse(fromDateTimeController.text.trim()).toIso8601String(),
-        "endTime": DateTime.parse(toDateTimeController.text.trim()).toIso8601String(),
+        "startDate": DateTime.parse(fromDateTimeController.text.trim())
+            .toIso8601String(),
+        "endDate":
+            DateTime.parse(toDateTimeController.text.trim()).toIso8601String(),
+        "startTime": DateTime.parse(fromDateTimeController.text.trim())
+            .toIso8601String(),
+        "endTime":
+            DateTime.parse(toDateTimeController.text.trim()).toIso8601String(),
       };
 
       final response = await ApiService.postRequest(endpoint, body);
@@ -135,7 +145,8 @@ class FacilityController extends GetxController with StateMixin<List<FacilityRes
   Future<bool> getBookedFacilities() async {
     try {
       String authUserEmail = resident.value.email!;
-      final endpoint = "${Endpoints.baseUrl}${Endpoints.bookedFacility}$authUserEmail";
+      final endpoint =
+          "${Endpoints.baseUrl}${Endpoints.bookedFacility}$authUserEmail";
       final response = await ApiService.getRequest(endpoint);
       if (response['status']) {
         final returnedFacilities = parseBookedFacilities(response['response']);
@@ -174,10 +185,12 @@ class FacilityController extends GetxController with StateMixin<List<FacilityRes
     }
   }
 
-  Future<bool> initialPayment(BuildContext context, BookedFacility facility) async {
+  Future<bool> initialPayment(
+      BuildContext context, BookedFacility facility) async {
     loading.value = true;
 
-    final EstateOfficeController estateOfficeController = Get.put(EstateOfficeController());
+    final EstateOfficeController estateOfficeController =
+        Get.put(EstateOfficeController());
     Resident resident = estateOfficeController.resident.value;
 
     try {
@@ -185,7 +198,7 @@ class FacilityController extends GetxController with StateMixin<List<FacilityRes
 
       if (!isAvailable) return false;
       final Customer customer = Customer(
-        name: resident.fullName,
+        name: 'resident.fullName',
         phoneNumber: resident.phone!,
         email: resident.email!,
       );
@@ -300,7 +313,8 @@ class FacilityController extends GetxController with StateMixin<List<FacilityRes
 
   Future<bool> _checkAvailability(String? id) async {
     try {
-      final endpoint = "${Endpoints.baseUrl}${Endpoints.checkBookingAvailability}$id";
+      final endpoint =
+          "${Endpoints.baseUrl}${Endpoints.checkBookingAvailability}$id";
       final response = await ApiService.getRequest(endpoint);
       if (response['status']) {
         return response['response'];

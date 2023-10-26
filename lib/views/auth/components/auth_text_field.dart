@@ -12,6 +12,8 @@ class AuthTextField extends StatelessWidget {
   final int maxLine;
   final bool? enable;
   final TextAlign? align;
+  
+  final bool obscureText;
 
   const AuthTextField({
     Key? key,
@@ -26,6 +28,7 @@ class AuthTextField extends StatelessWidget {
     this.initialValue,
     this.enable,
     this.align,
+    this.obscureText = false
   }) : super(key: key);
 
   @override
@@ -42,6 +45,7 @@ class AuthTextField extends StatelessWidget {
       maxLines: maxLine,
       initialValue: initialValue,
       enabled: enable,
+      obscureText: obscureText,
       textAlign: align ?? TextAlign.start,
       decoration: InputDecoration(
         border: const UnderlineInputBorder(

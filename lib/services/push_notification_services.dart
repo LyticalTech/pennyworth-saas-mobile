@@ -28,50 +28,50 @@ class PushNotificationService {
 
     log("FCM TOKEN: $fcmToken");
 
-    if (fcmToken != null && resident.id != null) {
-      authController.updateAuthUserToken(resident.id!, fcmToken);
+    // if (fcmToken != null && resident.id != null) {
+    //   authController.updateAuthUserToken(resident.id!, fcmToken);
     }
 
-    messaging.onTokenRefresh.listen((fcmToken) {
-      if (auth.currentUser != null && resident.id != null) {
-        authController.updateAuthUserToken(resident.id!, fcmToken);
-      }
-    }).onError((err) {});
+//     messaging.onTokenRefresh.listen((fcmToken) {
+//       if (auth.currentUser != null && resident.id != null) {
+//         authController.updateAuthUserToken(resident.id!, fcmToken);
+//       }
+//     }).onError((err) {});
 
-    final estateId = resident.estateId;
+//     final estateId = resident.estateId;
 
-    if (estateId != null) {
-      await messaging.subscribeToTopic(estateId);
-    }
+//     if (estateId != null) {
+//       await messaging.subscribeToTopic(estateId);
+//     }
 
-    FirebaseMessaging.onMessage.listen(
-      (message) {
-        log("${message.data}");
-        if (message.notification != null) {
-          showSimpleNotification(
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  message.notification?.title ?? "",
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                Text(message.notification?.body ?? ""),
-              ],
-            ),
-          );
-        }
+//     FirebaseMessaging.onMessage.listen(
+//       (message) {
+//         log("${message.data}");
+//         if (message.notification != null) {
+//           showSimpleNotification(
+//             Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   message.notification?.title ?? "",
+//                   style: TextStyle(fontWeight: FontWeight.w600),
+//                 ),
+//                 Text(message.notification?.body ?? ""),
+//               ],
+//             ),
+//           );
+//         }
 
-        if (Platform.isIOS) log("${(message.data)['aps']['alert']}");
-      },
-    );
-    messaging.getInitialMessage().then((value) => log("${value?.data}"));
-  }
+//         if (Platform.isIOS) log("${(message.data)['aps']['alert']}");
+//       },
+//     );
+//     messaging.getInitialMessage().then((value) => log("${value?.data}"));
+//   }
 
-  sendNotificationTo(FirebaseResident? recipient, String? estateId) {
-    if (recipient != null) {
-      // messaging.sendMessage()
-      messaging.sendMessage(to: recipient.fcmToken);
-    }
-  }
+//   sendNotificationTo(FirebaseResident? recipient, String? estateId) {
+//     if (recipient != null) {
+//       // messaging.sendMessage()
+//       messaging.sendMessage(to: recipient.fcmToken);
+//     }
+//   }
 }

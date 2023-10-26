@@ -14,13 +14,20 @@ import 'package:residents/models/other/firebase_resident.dart';
 import 'package:residents/services/chat_service.dart';
 
 class ChatController extends GetxController {
+  @override
+  void onInit() {
+    resident.value = authController.resident.value!;
+    super.onInit();
+  }
+
   TextEditingController message = TextEditingController();
 
   late final FirebaseMessaging firebaseMessaging;
 
   final AuthController authController = Get.find();
-  final resident = Resident().obs;
+
   final hasCommunity = false.obs;
+  late Rx<Resident> resident;
 
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
 
@@ -36,22 +43,22 @@ class ChatController extends GetxController {
   final otherUsers = <FirebaseResident>[].obs;
   final isCommunityMessage = false.obs;
 
-  ChatController() {
-    resident(authController.resident.value);
-    fetchAllUsers();
-  }
+  // ChatController() {
+  //   // resident(authController.resident.value);
+  //   // fetchAllUsers();
+  // }
 
-  Future<void> fetchAllUsers() async {
-    final res = resident.value;
-    userRef.get().then((snapshot) {
-      allUsers.value = snapshot.docs.map((snap) => snap.data()).toList();
+  // Future<void> fetchAllUsers() async {
+  //   // final res = resident.value;
+  //   userRef.get().then((snapshot) {
+  //     allUsers.value = snapshot.docs.map((snap) => snap.data()).toList();
 
-      otherUsers.value = [...allUsers];
+  //     otherUsers.value = [...allUsers];
 
-      otherUsers.retainWhere(
-          (user) => user.uid != res.id && user.estateId == res.estateId);
-    });
-  }
+  //     otherUsers.retainWhere(
+  //         (user) => user.uid != res.id && user.estateId == res.estateId);
+  //   });
+  // }
 
   Future<FirebaseResident?> getFirestoreUserBy(String uid) async {
     DocumentSnapshot snapshot =

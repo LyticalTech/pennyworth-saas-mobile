@@ -36,7 +36,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
     authController.loginAndPrepFirebase();
     authController.notificationService?.initialise();
 
-    log("${authController.resident.value.estateId} => ${authController.resident.value.estateName}");
+    log("${authController.resident.value!.estateId} => ${authController.resident.value!.estateName}");
   }
 
   @override
@@ -100,7 +100,7 @@ class _MainModulesState extends State<MainModules> {
 
   @override
   void initState() {
-    residentFullName = controller.resident.value.fullName;
+    residentFullName = controller.resident.value!.fullName;
     super.initState();
   }
 

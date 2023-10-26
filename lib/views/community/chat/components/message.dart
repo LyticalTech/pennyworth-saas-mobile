@@ -35,7 +35,7 @@ class Message extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: kDefaultPadding * 0.25),
       child: Row(
-        mainAxisAlignment: message.senderId == authController.resident.value.id
+        mainAxisAlignment: message.senderId == authController.resident.value!.id
             ? MainAxisAlignment.end
             : MainAxisAlignment.start,
         children: [

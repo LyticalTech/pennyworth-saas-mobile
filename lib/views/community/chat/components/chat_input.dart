@@ -42,7 +42,7 @@ class ChatInputFieldState extends State<ChatInputField> {
 
     if (_controller.message.text.isNotEmpty) {
       final message = ChatMessage(
-        senderId: _authController.resident.value.id!,
+        senderId: _authController.resident.value!.id.toString(),
         receiverId: receiverId,
         text: _controller.message.text.trim(),
         messageType: ChatMessageType.text.value,
@@ -51,7 +51,8 @@ class ChatInputFieldState extends State<ChatInputField> {
       );
 
       ChatService.saveMessage(
-        authUser: FirebaseResident.fromResident(_authController.resident.value),
+        authUser:
+            FirebaseResident.fromResident(_authController.resident.value!),
         recipient: widget.receiver,
         convoId: widget.convoId,
         message: message,
