@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
@@ -67,6 +69,8 @@ class AuthServices {
       }
       logger.i(Resident.fromJson(response.data).email);
       return Right(Resident.fromJson(response.data));
+    } on SocketException {
+      return Left(Failure(errorResponse: "Unable to connect to the internet."));
     } on DioException catch (e) {
       return Left(Failure(errorResponse: NetworkHelper.onError(e)));
     }

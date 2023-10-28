@@ -24,7 +24,7 @@ class EstateOfficeController extends GetxController
   void onInit() async {
     super.onInit();
     // resident(authController.resident.value);
-    resident.value = authController.resident.value;
+    resident = authController.resident;
     await getServices();
   }
 
@@ -123,12 +123,12 @@ class EstateOfficeController extends GetxController
   Future<bool> submitComplaint(
       {required String title, required String msg}) async {
     final authUserEmail = resident.value.email;
-    assert(authUserEmail != null);
+
 
     Map<String, String> message = {
       "title": title,
       "message": msg,
-      "residentEmail": authUserEmail!
+      "residentEmail": authUserEmail
     };
 
     try {

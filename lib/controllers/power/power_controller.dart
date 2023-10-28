@@ -7,28 +7,29 @@ import 'package:residents/helpers/constants.dart';
 import 'package:residents/models/estate_office/resident.dart';
 import 'package:residents/models/power/power.dart';
 import 'package:residents/services/api_service.dart';
+import 'package:residents/utils/logger.dart';
 
 class PowerController extends GetxController
     with StateMixin<List<PowerSupply>> {
   final powerSources = Rx<List<PowerSource>>([]);
   final powerSupplies = Rx<List<PowerSupply>>([]);
   final AuthController authController = Get.find();
-
   late Rx<Resident> resident;
 
   @override
   void onInit() {
     super.onInit();
-    resident = authController.resident as Rx<Resident>;
+    resident = authController.resident;
     fetchSupplies();
   }
 
   Future<bool> fetchSources() async {
     try {
       change([], status: RxStatus.loading());
-      final estateId = resident.value.estateId ?? "";
+      final estateId = resident.value.estateId;
       final endpoint = "${Endpoints.baseUrl}${Endpoints.powerSource}/$estateId";
       final response = await ApiService.getRequest(endpoint);
+      logger.e(response);
       if (response['status']) {
         powerSources.value = parsePowerSources(response['response']);
         return powerSources.value.isNotEmpty;
@@ -50,10 +51,9 @@ class PowerController extends GetxController
   Future<bool> fetchSupplies() async {
     try {
       change([], status: RxStatus.loading());
-      final estateId = resident.value.estateId ?? "";
-      const endPoint = Endpoints.baseUrl + Endpoints.powerSupply;
-      final response = await ApiService.getRequest(endPoint,
-          param: {'estateId': estateId.toString()});
+      final estateId = resident.value.estateId;
+      var endPoint = "${Endpoints.baseUrl}${Endpoints.powerSupply}/$estateId";
+      final response = await ApiService.getRequest(endPoint);
       if (response['status']) {
         powerSupplies.value = parsePowerSupply(response['response']);
         change(powerSupplies.value, status: RxStatus.success());
@@ -63,6 +63,7 @@ class PowerController extends GetxController
         return false;
       }
     } on SocketException catch (_) {
+      logger.e(_);
       change([],
           status:
               RxStatus.error("Network error! Please check your connection."));
@@ -101,7 +102,7 @@ class PowerController extends GetxController
     final sd = DateTime.parse(startDate);
     final ed = DateTime.parse(endDate);
     temp.retainWhere((supply) {
-      var supplyDate = DateTime.parse(supply.date!);
+      var supplyDate = DateTime.parse(supply.date as String);
 
       log(supplyDate.toString());
 

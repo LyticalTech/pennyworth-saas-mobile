@@ -17,49 +17,71 @@ class PowerSource {
 }
 
 class PowerSupply {
-  String? id;
-  String? date;
+  int id;
+  String date;
   String? onTime;
+  double onVolume;
   String? offTime;
-  double? onVolume;
-  double? offVolume;
+  String? offRemarks;
+  double offVolume;
+  String? onRemarks;
   double? efficiency;
-  String? source;
-  String? remarks;
+  String source;
+  String estate;
+  int estateId;
 
   PowerSupply({
-    required this.id, required this.date, required this.onTime,
-    required this.offTime, required this.onVolume, required this.offVolume,
-    required this.efficiency, required this.source, this.remarks
+    required this.id,
+    required this.date,
+    required this.onTime,
+    required this.onVolume,
+    this.offTime,
+    this.offRemarks,
+    required this.onRemarks,
+    required this.offVolume,
+    this.efficiency,
+    required this.source,
+    required this.estate,
+    required this.estateId,
   });
 
-  Duration? get runtime {
+  factory PowerSupply.fromJson(Map<String, dynamic> json) {
+    return PowerSupply(
+      id: json['id'],
+      date: json['date'],
+      onTime: json['onTime'],
+      onVolume: json['onVolume'].toDouble(),
+      offTime: json['offTime'],
+      offRemarks: json['offRemarks'],
+      onRemarks: json['onRemarks'],
+      offVolume: json['offVolume'].toDouble(),
+      efficiency: json['efficiency']?.toDouble(),
+      source: json['source'],
+      estate: json['estate'],
+      estateId: json['estateId'],
+    );
+  }
+
+    Duration? get runtime {
     if (offTime != null && onTime != null) {
-      return DateTime.parse(offTime!).difference(DateTime.parse(onTime!));
+      DateTime on = DateTime.parse(onTime!);
+      DateTime off = DateTime.parse(offTime!);
+      return off.difference(on);
     } else {
       return null;
     }
   }
+}
 
-  factory PowerSupply.fromJson(Map<String, dynamic> json) => PowerSupply(
-      id: json["id"],
-      date: json["date"],
-      onTime: json["onTime"],
-      offTime: json["offTime"],
-      onVolume: json["onVolume"]?.toDouble(),
-      offVolume: json["offVolume"]?.toDouble(),
-      efficiency: json["efficiency"]?.toDouble(),
-      source: json["source"]
-  );
 
+
+
+List<PowerSupply> parsePowerSupply(String responseBody) {
+  final List<dynamic> parsed = jsonDecode(responseBody);
+  return parsed.map<PowerSupply>((json) => PowerSupply.fromJson(json)).toList();
 }
 
 List<PowerSource> parsePowerSources(String responseBody) {
   final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
   return parsed.map<PowerSource>((json) => PowerSource.fromJson(json)).toList();
-}
-
-List<PowerSupply> parsePowerSupply(String responseBody) {
-  final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
-  return parsed.map<PowerSupply>((json) => PowerSupply.fromJson(json)).toList();
 }

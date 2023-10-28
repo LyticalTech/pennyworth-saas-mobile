@@ -289,6 +289,7 @@ class AuthController extends GetxController {
     res.fold(
       (l) => logger.e(l.errorResponse),
       (r) {
+        _authServices.saveToken = r.accessToken;
         resident = Rx(r);
         logger.i(r.email);
         Get.to(

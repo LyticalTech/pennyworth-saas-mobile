@@ -55,8 +55,8 @@ class Endpoints {
   static const invoice = "api/Finance/invoice/";
   static const invoicePayment = "api/Finance/payment";
   static const login = "Auth/login-resident";
-  static const powerSource = "api/Power/estate-source";
-  static const powerSupply = "api/Power/estate-supply";
+  static const powerSource = "PowerSource/get-estate-power-sources/";
+  static const powerSupply = "PowerSupply/get-estate-power-supplies/";
   static const requestLinkResend = "api/Admin/refreshActivationLink/";
   static const sendPanicMessage =
       "https://us-central1-middle-chase.cloudfunctions"

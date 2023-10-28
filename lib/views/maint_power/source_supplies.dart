@@ -13,7 +13,8 @@ import 'package:residents/utils/helper_functions.dart';
 class SourceSupplies extends GetView<PowerController> {
   SourceSupplies({Key? key}) : super(key: key);
 
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
@@ -90,7 +91,8 @@ class SourceSupplies extends GetView<PowerController> {
               (state) {
                 if (controller.powerSupplies.value.isNotEmpty) {
                   return Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
                     child: ListView.separated(
                       itemCount: state!.length,
                       itemBuilder: (BuildContext context, int index) {
@@ -99,9 +101,12 @@ class SourceSupplies extends GetView<PowerController> {
 
                         String runtime = '';
                         if (duration != null && duration.inMinutes > 60) {
-                          runtime += "${(duration.inMinutes / 60).floor()} hs, ";
+                          runtime +=
+                              "${(duration.inMinutes / 60).floor()} hs, ";
                         }
-                        runtime += (duration != null) ? "${duration.inMinutes % 60} mins" : "";
+                        runtime += (duration != null)
+                            ? "${duration.inMinutes % 60} mins"
+                            : "";
 
                         return ListTile(
                           onTap: () => _showBottomSheet(context, supply),
@@ -116,7 +121,8 @@ class SourceSupplies extends GetView<PowerController> {
                                 ),
                               ),
                               CustomText(
-                                DateTime.parse(supply.onTime!).formattedVerboseDate(),
+                                DateTime.parse(supply.onTime!)
+                                    .formattedVerboseDate(),
                                 size: 13,
                                 color: Colors.black54,
                               )
@@ -130,17 +136,22 @@ class SourceSupplies extends GetView<PowerController> {
                                     fontSize: 12,
                                     title: "On/T",
                                     value: (supply.onTime != null)
-                                        ? DateTime.parse(supply.onTime!).formattedTime()
+                                        ? DateTime.parse(supply.onTime!)
+                                            .formattedTime()
                                         : "",
                                   ),
                                   bottomLabels(
                                     fontSize: 12,
                                     title: "Off/T",
                                     value: (supply.offTime != null)
-                                        ? DateTime.parse(supply.offTime!).formattedTime()
+                                        ? DateTime.parse(supply.offTime!)
+                                            .formattedTime()
                                         : "",
                                   ),
-                                  bottomLabels(fontSize: 12, title: "Time", value: runtime)
+                                  bottomLabels(
+                                      fontSize: 12,
+                                      title: "Time",
+                                      value: runtime)
                                 ],
                               ),
                             ],
@@ -249,7 +260,7 @@ class SourceSupplies extends GetView<PowerController> {
               buildItem(
                 title: "Date",
                 value: (powerSupply.date != null)
-                    ? DateTime.parse(powerSupply.date!).formattedDate()
+                    ? DateTime.parse(powerSupply.date).formattedDate()
                     : "-",
               ),
               buildItem(
@@ -265,7 +276,7 @@ class SourceSupplies extends GetView<PowerController> {
                     : "-",
               ),
               buildItem(title: "Total Runtime", value: runtime),
-              buildItem(title: "Remarks", value: powerSupply.remarks ?? "-"),
+              buildItem(title: "Remarks", value: powerSupply.onRemarks ?? "-"),
             ],
           ),
         ),
@@ -321,9 +332,10 @@ class SourceSupplies extends GetView<PowerController> {
               child: Text("Cancel")),
           TextButton(
             onPressed: () {
-              if (startDateController.text.isNotEmpty && endDateController.text.isNotEmpty) {
-                controller.filterByDateRange(
-                    startDateController.text.trim(), endDateController.text.trim());
+              if (startDateController.text.isNotEmpty &&
+                  endDateController.text.isNotEmpty) {
+                controller.filterByDateRange(startDateController.text.trim(),
+                    endDateController.text.trim());
               }
               Navigator.pop(context);
             },
