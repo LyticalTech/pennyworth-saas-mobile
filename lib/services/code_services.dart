@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:residents/helpers/Utils.dart';
@@ -5,9 +9,14 @@ import 'package:residents/models/other/code.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:whatsapp_unilink/whatsapp_unilink.dart';
 
-class CodeServices {
+import '../helpers/constants.dart';
+import '../models/other/status.dart';
+import '../utils/logger.dart';
+import '../utils/network_base.dart';
 
+class CodeServices {
   Uri lytical = Uri.parse('lyticaltechnology.com');
+  final NetworkHelper _networkHelper = NetworkHelper(Endpoints.baseUrl);
 
   Future<void> copyCode(String code) async {
     try {
@@ -18,7 +27,10 @@ class CodeServices {
     }
   }
 
-  Future<void> shareCodeOnWhatsApp({required Code code, required String sender, required String address}) async {
+  Future<void> shareCodeOnWhatsApp(
+      {required Code code,
+      required String sender,
+      required String address}) async {
     final link = WhatsAppUnilink(
       text: """Hey! 
 You have been invited to $address by $sender.
@@ -41,7 +53,10 @@ Powered by $lytical
     }
   }
 
-  Future<void> shareCodeBySms({required Code code, required String sender, required String address}) async {
+  Future<void> shareCodeBySms(
+      {required Code code,
+      required String sender,
+      required String address}) async {
     final String sms = """Hey! 
 You have been invited to $address by $sender.
 
@@ -59,6 +74,29 @@ Powered by $lytical
       await launch('sms:?body=$sms');
     } catch (e, s) {
       Utils.showToast("Unable to Launch SMS");
+    }
+  }
+
+  Future<Either<Failure, dynamic>> generate(
+    String email,
+    String password,
+  ) async {
+    try {
+      var response = await _networkHelper.post(
+        Endpoints.generateCode,
+        data: {"visitorName": "string", "durationInHours": 3},
+      );
+
+      var hasError = isBadStatusCode(response.statusCode!);
+      if (hasError) {
+        return Left(Failure(errorResponse: response));
+      }
+      logger.i(response.data);
+      return Right(response.data);
+    } on SocketException {
+      return Left(Failure(errorResponse: "Unable to connect to the internet."));
+    } on DioException catch (e) {
+      return Left(Failure(errorResponse: NetworkHelper.onError(e)));
     }
   }
 }

@@ -108,8 +108,8 @@ class CodeController extends GetxController {
     // _house = HouseController.house;
 
     // if (_house.reservedKey != null && _house.reservedKey!.isNotEmpty) {
-    _inactiveCodeCollection =
-        _store.collection('codes/${authController.resident.value?.houseId}/past_codes');
+    _inactiveCodeCollection = _store.collection(
+        'codes/${authController.resident.value?.houseId}/past_codes');
     // }
   }
 
@@ -125,21 +125,19 @@ class CodeController extends GetxController {
     // String generatedCode = _house.reservedKey + _random().toString();
     String isoString = DateTime.now().millisecondsSinceEpoch.toString();
 
-    String generatedCode = isoString.substring(isoString.length - 5);
+    // String generatedCode = isoString.substring(isoString.length - 5);
 
     code = Code(
-      houseId: authController.resident.value?.houseId.toString() ?? "",
+      houseId: authController.resident.value.houseId.toString(),
       status: 'active',
-      createdBy: authController.resident.value?.id.toString() ?? "",
+      createdBy: authController.resident.value.id.toString(),
       createdAt: DateTime.now(),
       expires: getExpirationTime(),
-      code: generatedCode,
+      code: "generatedCode",
       vehicleImage: vehicleImage.value,
       visitorsImage: visitorImage.value,
       idCard: id.value,
     );
-
-    await _addCodeToFirestore();
 
     shareCode.toggle();
 
@@ -149,10 +147,6 @@ class CodeController extends GetxController {
   int _random() {
     Random random = Random.secure();
     return min + random.nextInt(max - min);
-  }
-
-  Future<void> _addCodeToFirestore() async {
-    _activeCodeCollection.doc(code.code).set(code.toSnapshot());
   }
 
   Future<void> cancelCode(String codeId) async {
@@ -231,7 +225,8 @@ class CodeController extends GetxController {
   }
 
   Future<void> shareCodeOnWhatsApp() async {
-    String residentsName = FirebaseAuth.instance.currentUser?.displayName ?? 'A resident';
+    String residentsName =
+        FirebaseAuth.instance.currentUser?.displayName ?? 'A resident';
     String homeAddress = authController.resident.value!.houseAddress ?? "";
     final link = WhatsAppUnilink(
       text: """Hey! 

@@ -80,7 +80,7 @@ class PowerController extends GetxController
     if (source.isNotEmpty) {
       List<PowerSupply> result = temp;
       result.retainWhere((supply) =>
-          supply.source!.toLowerCase().contains(source.toLowerCase()));
+          supply.source.toLowerCase().contains(source.toLowerCase()));
       change(result, status: RxStatus.success());
     } else {
       change(powerSupplies.value, status: RxStatus.success());
