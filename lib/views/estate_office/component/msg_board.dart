@@ -13,26 +13,29 @@ class MessageBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: controller.getMessageBoard(),
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: controller.messageBoard(),
       builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
           return Padding(
             padding: const EdgeInsets.only(top: 12.0),
             child: ListView.separated(
-              itemCount: snapshot.data!.docs.length,
+              itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                final message = snapshot.data!.docs[index];
+                final message = snapshot.data![index];
 
-                DateTime date = DateTime.fromMillisecondsSinceEpoch(message['created']);
-                final formattedDate = DateFormat("dd, MMMM, yyyy").format(date);
+                // DateTime date =
+                //     DateTime.fromMillisecondsSinceEpoch(message['created']);
+                // final formattedDate = DateFormat("dd, MMMM, yyyy").format(date);
 
                 return ListTile(
                   onTap: () => Get.to(
                     () => MessageDetail(message: {
                       'title': message['title'],
-                      'body': message['body'],
-                      'created': DateTime.fromMillisecondsSinceEpoch(message['created']).toString(),
+                      'body': message['message'],
+                      // 'created': DateTime.fromMillisecondsSinceEpoch(
+                      //         message['created'])
+                      // .toString(),
                     }),
                   ),
                   title: Padding(
@@ -47,7 +50,7 @@ class MessageBoard extends StatelessWidget {
                   subtitle: Padding(
                     padding: EdgeInsets.only(left: 12.0, top: 6),
                     child: CustomText(
-                      message['body'],
+                      message['message'],
                       maxLine: 2,
                       size: 12,
                       fontWeight: FontWeight.w400,
@@ -57,7 +60,7 @@ class MessageBoard extends StatelessWidget {
                   trailing: Padding(
                     padding: EdgeInsets.only(right: 12.0),
                     child: CustomText(
-                      formattedDate,
+                      " formattedDate",
                       size: 12,
                       fontWeight: FontWeight.w500,
                       color: Colors.black54,
@@ -73,7 +76,8 @@ class MessageBoard extends StatelessWidget {
               ),
             ),
           );
-        } else if (snapshot.hasData && (snapshot.data == null || snapshot.data!.docs.isEmpty)) {
+        } else if (snapshot.hasData &&
+            (snapshot.data == null || snapshot.data!.isEmpty)) {
           return Column(
             children: [
               Spacer(flex: 1),

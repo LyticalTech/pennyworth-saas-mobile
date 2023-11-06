@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart';
@@ -9,6 +9,8 @@ import 'package:residents/helpers/constants.dart';
 import 'package:residents/models/estate_office/attendance.dart';
 import 'package:residents/models/estate_office/messages.dart';
 import 'package:residents/services/api_service.dart';
+import 'package:residents/utils/logger.dart';
+import 'package:residents/utils/network_base.dart';
 import '../../models/estate_office/resident.dart';
 
 class EstateOfficeController extends GetxController
@@ -17,6 +19,7 @@ class EstateOfficeController extends GetxController
   late Rx<Resident> resident;
   final hasFetchedResidents = false.obs;
   final AuthController authController = Get.find();
+  final _networkHelper = NetworkHelper(Endpoints.baseUrl);
 
   final loading = false.obs;
 
@@ -122,13 +125,11 @@ class EstateOfficeController extends GetxController
 
   Future<bool> submitComplaint(
       {required String title, required String msg}) async {
-    final authUserEmail = resident.value.email;
-
+    // final authUserEmail = resident.value.email;
 
     Map<String, String> message = {
       "title": title,
       "message": msg,
-      "residentEmail": authUserEmail
     };
 
     try {
@@ -161,6 +162,7 @@ class EstateOfficeController extends GetxController
       ));
       return false;
     } catch (error) {
+      logger.d(error);
       Get.showSnackbar(GetSnackBar(
         message: "Failed to submit complaint. $error",
         duration: Duration(seconds: 3),
@@ -172,13 +174,41 @@ class EstateOfficeController extends GetxController
     }
   }
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> getMessageBoard() {
-    final boardCollection = FirebaseFirestore.instance
-        .collection("message_board")
-        .where('estateId', isEqualTo: resident.value.estateId)
-        .orderBy("created", descending: true);
+  // Stream<QuerySnapshot<Map<String, dynamic>>> getMessageBoard() {
+  //   final boardCollection = FirebaseFirestore.instance
+  //       .collection("message_board")
+  //       .where('estateId', isEqualTo: resident.value.estateId)
+  //       .orderBy("created", descending: true);
 
-    return boardCollection.snapshots();
+  //   return boardCollection.snapshots();
+  // }
+
+  Stream<List<Map<String, dynamic>>> messageBoard() async* {
+    try {
+      var id = resident.value.estateId;
+      logger.d(id);
+      var response = await _networkHelper.get(
+        '${Endpoints.getMessageBoard}$id',
+      );
+
+      logger.d(response);
+      var hasError = isBadStatusCode(response.statusCode!);
+      if (hasError) {
+        throw response.statusCode.toString();
+      }
+      logger.i(response.data);
+      if (response.data is List) {
+        final List<Map<String, dynamic>> messages =
+            List<Map<String, dynamic>>.from(response.data);
+        yield messages;
+      } else {
+        throw "Invalid response data format";
+      }
+    } on SocketException {
+      throw "Unable to connect to the internet";
+    } on DioException catch (e) {
+      throw (NetworkHelper.onError(e));
+    }
   }
 
   Future<List<Complaint?>> getComplaintsFromDB(String email) async {

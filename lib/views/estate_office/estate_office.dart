@@ -12,7 +12,6 @@ class EstateOffice extends StatefulWidget {
 }
 
 class _EstateOfficeState extends State<EstateOffice> {
-
   AppUser? appUser;
 
   @override

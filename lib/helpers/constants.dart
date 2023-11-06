@@ -46,7 +46,7 @@ class Endpoints {
   static const bookFacility = "api/Facility/book";
   static const bookedFacility = "api/Facility/booked/items/";
   static const checkBookingAvailability = "api/Facility/book-validity";
-  static const complaint = "api/Communication/complaint";
+  static const complaint = "Complaints/create-complaint";
   static const facilities = "api/Facility/estate-assets";
   static const facilityPayment = "api/Facility/payment";
   static const getOtp = "api/SignIn/getOtp";
@@ -57,6 +57,7 @@ class Endpoints {
   static const login = "Auth/login-resident";
   static const generateCode = "SecurityCode/generate";
   static const getActiveCodes = "SecurityCode/active";
+  static const getMessageBoard = "Notifications/estate/";
   static const getInActiveCodes = "SecurityCode/inactive";
   static const extendCode = "SecurityCode/extend";
   static const powerSource = "PowerSource/get-estate-power-sources/";
