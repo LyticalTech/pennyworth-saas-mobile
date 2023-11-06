@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:residents/helpers/Utils.dart';
 import 'package:residents/models/other/code.dart';
+import 'package:residents/models/other/code_response.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:whatsapp_unilink/whatsapp_unilink.dart';
 
@@ -77,14 +79,16 @@ Powered by $lytical
     }
   }
 
-  Future<Either<Failure, dynamic>> generate(
-    String email,
-    String password,
-  ) async {
+  Future<Either<Failure, CodeResponse>> generate(
+      bool visitorsImage, bool vehicleImage, bool idCardImage) async {
     try {
       var response = await _networkHelper.post(
         Endpoints.generateCode,
-        data: {"visitorName": "string", "durationInHours": 3},
+        data: {
+          "isVisitorImageRequired": visitorsImage,
+          "isVistorIdImageRequired": idCardImage,
+          "isVisitorVehicleImageRequired": vehicleImage
+        },
       );
 
       var hasError = isBadStatusCode(response.statusCode!);
@@ -92,11 +96,90 @@ Powered by $lytical
         return Left(Failure(errorResponse: response));
       }
       logger.i(response.data);
+      return Right(CodeResponse.fromJson(response.data));
+    } on SocketException {
+      return Left(Failure(errorResponse: "Unable to connect to the internet."));
+    } on DioException catch (e) {
+      return Left(
+        Failure(
+          errorResponse: NetworkHelper.onError(e),
+        ),
+      );
+    }
+  }
+
+  Future<Either<Failure, List<Code>>> activeCode() async {
+    try {
+      var response = await _networkHelper.get(
+        Endpoints.getActiveCodes,
+      );
+
+      var hasError = isBadStatusCode(response.statusCode!);
+      if (hasError) {
+        return Left(Failure(errorResponse: response));
+      }
+      logger.i(response.data);
+      List<Code> accessCodes =
+          (response.data as List).map((data) => Code.fromJson(data)).toList();
+      return Right(accessCodes);
+    } on SocketException {
+      return Left(Failure(errorResponse: "Unable to connect to the internet."));
+    } on DioException catch (e) {
+      return Left(
+        Failure(
+          errorResponse: NetworkHelper.onError(e),
+        ),
+      );
+    }
+  }
+
+  Future<Either<Failure, List<Code>>> inActiveCode() async {
+    try {
+      var response = await _networkHelper.get(
+        Endpoints.getInActiveCodes,
+      );
+
+      var hasError = isBadStatusCode(response.statusCode!);
+      if (hasError) {
+        return Left(Failure(errorResponse: response));
+      }
+      logger.i(response.data);
+      List<Code> accessCodes =
+          (response.data as List).map((data) => Code.fromJson(data)).toList();
+      return Right(accessCodes);
+    } on SocketException {
+      return Left(Failure(errorResponse: "Unable to connect to the internet."));
+    } on DioException catch (e) {
+      return Left(
+        Failure(
+          errorResponse: NetworkHelper.onError(e),
+        ),
+      );
+    }
+  }
+
+  Future<Either<Failure, dynamic>> extendCode(code) async {
+    try {
+      var response = await _networkHelper.put(
+        Endpoints.extendCode,
+        data: {"code": code.toString()},
+      );
+
+      var hasError = isBadStatusCode(response.statusCode!);
+      if (hasError) {
+        return Left(Failure(errorResponse: response));
+      }
+      logger.i(response.data);
+
       return Right(response.data);
     } on SocketException {
       return Left(Failure(errorResponse: "Unable to connect to the internet."));
     } on DioException catch (e) {
-      return Left(Failure(errorResponse: NetworkHelper.onError(e)));
+      return Left(
+        Failure(
+          errorResponse: NetworkHelper.onError(e),
+        ),
+      );
     }
   }
 }

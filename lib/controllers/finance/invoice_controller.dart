@@ -14,7 +14,6 @@ import 'package:residents/models/finance/invoice.dart';
 import 'package:residents/models/finance/service_charge.dart';
 import 'package:residents/services/api_service.dart';
 import 'package:residents/utils/environment.dart';
-import 'package:residents/utils/flutterwave_style.dart';
 
 class FinanceController extends GetxController with StateMixin<List<Invoice>> {
   List<Invoice> invoices = <Invoice>[].obs;
@@ -35,7 +34,7 @@ class FinanceController extends GetxController with StateMixin<List<Invoice>> {
   @override
   void onInit() {
     super.onInit();
-    resident.value = authController.resident.value!;
+    resident = authController.resident;
 
     getServices();
   }

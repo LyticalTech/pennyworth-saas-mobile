@@ -9,40 +9,40 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:residents/controllers/auth/auth_controller.dart';
+import 'package:residents/helpers/snackbar.dart';
 import 'package:residents/models/other/code.dart';
+import 'package:residents/services/code_services.dart';
 import 'package:residents/utils/constants.dart';
+import 'package:residents/utils/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:whatsapp_unilink/whatsapp_unilink.dart';
 
 class CodeController extends GetxController {
+  final CodeServices _codeServices = CodeServices();
+  var isGeneratingCode = false.obs;
+
   late final FirebaseFirestore _store;
-
   late final FToast fToast;
-
   late final CollectionReference _activeCodeCollection;
-
   late final CollectionReference _inactiveCodeCollection;
 
   // late House _house;
 
   final AuthController authController = Get.find();
-
   RxBool visitorImage = false.obs;
-
   RxBool vehicleImage = false.obs;
-
   RxBool id = false.obs;
-
   RxBool shareCode = false.obs;
 
   // late Stream<List<Code>> _codes;
+  var activeCodes = Rx<List<Code>>([]);
+  var inActiveCodes = Rx<List<Code>>([]);
+  RxBool loadingActiveCodes = true.obs;
+  RxBool loadingInActiveCodes = true.obs;
 
   late final Code code;
-
   Uri lytical = Uri.parse('lyticaltechnology.com');
-
   final int min = Constants.min;
-
   final int max = Constants.max;
 
   Container successToast = Container(
@@ -94,12 +94,11 @@ class CodeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-
     fToast = FToast();
-
     fToast.init(Get.context!);
-
     _store = FirebaseFirestore.instance;
+    getActiveCode();
+    getInActiveCode();
 
     _activeCodeCollection = _store.collection(Constants.activeCodeRef);
 
@@ -114,34 +113,58 @@ class CodeController extends GetxController {
   }
 
   Future<void> generateCode() async {
-    // _showPleaseWait();
+    isGeneratingCode.value = true;
 
-    /*Map pastCodes = await _codeCollection.get().then((DocumentSnapshot documentSnapshot) {
-
-      return documentSnapshot.data() as Map;
-
-    });*/
-
-    // String generatedCode = _house.reservedKey + _random().toString();
-    String isoString = DateTime.now().millisecondsSinceEpoch.toString();
-
-    // String generatedCode = isoString.substring(isoString.length - 5);
-
-    code = Code(
-      houseId: authController.resident.value.houseId.toString(),
-      status: 'active',
-      createdBy: authController.resident.value.id.toString(),
-      createdAt: DateTime.now(),
-      expires: getExpirationTime(),
-      code: "generatedCode",
-      vehicleImage: vehicleImage.value,
-      visitorsImage: visitorImage.value,
-      idCard: id.value,
+    var response = await _codeServices.generate(
+      visitorImage.value,
+      vehicleImage.value,
+      id.value,
     );
 
-    shareCode.toggle();
+    isGeneratingCode.value = false;
+
+    response.fold((l) {
+      redSnackBar("Unable to generate code");
+      Get.back();
+    }, (r) {
+      logger.i(r);
+      code = Code(
+        houseId: authController.resident.value.houseId,
+        status: 'active',
+        createdBy: authController.resident.value.id.toString(),
+        createdAt: DateTime.now(),
+        expires: getExpirationTime(),
+        code: r.code,
+        vehicleImage: vehicleImage.value,
+        visitorsImage: visitorImage.value,
+        idCard: id.value,
+        codeId: 0,
+      );
+
+      shareCode.toggle();
+    });
 
     // Get.back();
+  }
+
+  Future<void> getActiveCode() async {
+    loadingActiveCodes.value = true;
+    var response = await _codeServices.activeCode();
+    loadingActiveCodes.value = false;
+    response.fold(
+      (l) => redSnackBar('Error getting active codes'),
+      (r) => activeCodes.value = r,
+    );
+  }
+
+  void getInActiveCode() async {
+    loadingInActiveCodes.value = true;
+    var response = await _codeServices.inActiveCode();
+    loadingInActiveCodes.value = false;
+    response.fold(
+      (l) => redSnackBar('Error getting inactive codes'),
+      (r) => inActiveCodes.value = r,
+    );
   }
 
   int _random() {
@@ -152,8 +175,6 @@ class CodeController extends GetxController {
   Future<void> cancelCode(String codeId) async {
     try {
       _showPleaseWait();
-
-      Code code = await _getActiveCode(codeId);
 
       code.status = 'cancelled';
 
@@ -171,42 +192,44 @@ class CodeController extends GetxController {
     }
   }
 
-  Future<Code> _getActiveCode(String codeId) async {
-    DocumentSnapshot snapshot = await _activeCodeCollection.doc(codeId).get();
+  // Future<Code> _getActiveCode(String codeId) async {
+  //   DocumentSnapshot snapshot = await _activeCodeCollection.doc(codeId).get();
 
-    return Code.fromSnapshot(snapshot);
-  }
+  //   return Code.fromSnapshot(snapshot);
+  // }
 
   Future<void> _deleteFromActiveCodeCollection(String codeId) async {
     await _activeCodeCollection.doc(codeId).delete();
   }
 
   Future<void> _insertIntoInactiveCodeCollection(Code code) async {
-    await _inactiveCodeCollection.add(code.toSnapshot());
+    // await _inactiveCodeCollection.add(code.toSnapshot());
   }
 
-  Future<void> extendCodeByAnHour(String codeId, DateTime expiryTime) async {
+  Future<void> extendCodeByAnHour(String codeId) async {
     try {
-      _showPleaseWait();
-
-      expiryTime = expiryTime.add(const Duration(hours: 1));
-
-      _updateCode(codeId, expiryTime);
-
-      _showToast('Code Expiry Extended');
-
+      // Get.back();
+      loadingActiveCodes.value = true;
+      await _updateCode(codeId);
       Get.back();
     } on Exception catch (_) {
       _showToast('Unable to extend code expiry');
-
-      Get.back();
     }
   }
 
-  Future<void> _updateCode(String codeId, DateTime expiryTime) async {
-    await _activeCodeCollection.doc(codeId).update({
-      'expires': expiryTime,
-    });
+  Future<void> _updateCode(String codeId) async {
+    var response = await _codeServices.extendCode(codeId);
+
+    response.fold(
+      (l) {
+        _showToast('Unable to extend code expiry');
+      },
+      (r) async {
+        await getActiveCode();
+
+        _showToast('Code Expiry Extended');
+      },
+    );
   }
 
   List<Code> _allCodesBelongingToHousehold(QuerySnapshot snapshot) {
@@ -278,20 +301,5 @@ Powered by $lytical
   DateTime getExpirationTime() {
     DateTime expire = DateTime.now().add(Constants.expirationDuration);
     return DateTime(expire.year, expire.month, expire.day, expire.hour, 59);
-  }
-
-  Stream<List<Code>> get activeCodes {
-    return _activeCodeCollection
-        .where('houseId', isEqualTo: authController.resident.value!.houseId)
-        .where('createdBy', isEqualTo: authController.resident.value!.id)
-        .snapshots()
-        .map(_allCodesBelongingToHousehold);
-  }
-
-  Stream<List<Code>> get inactiveCodes {
-    return _inactiveCodeCollection
-        .where('createdBy', isEqualTo: authController.resident.value!.id)
-        .snapshots()
-        .map(_allCodesBelongingToHousehold);
   }
 }

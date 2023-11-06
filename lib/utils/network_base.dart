@@ -1,7 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:residents/services/auth_services.dart';
-import '../controllers/auth/auth_controller.dart';
-import '../helpers/snackbar.dart';
 import 'logger.dart';
 
 class NetworkHelper {
@@ -17,13 +15,8 @@ class NetworkHelper {
         InterceptorsWrapper(onRequest:
             (RequestOptions options, RequestInterceptorHandler handler) {
           options.headers['authorization'] = 'Bearer ${AuthServices().token}';
-          // logger.i('Bearer ${_storageRepository.token().token}');
           handler.next(options);
         }, onError: (DioException e, ErrorInterceptorHandler handler) async {
-          if (e.response?.statusCode == _unauthorized) {
-            await AuthController().signOut();
-            redSnackBar("Unauthorized");
-          }
           handler.reject(e);
         }),
       );

@@ -16,7 +16,7 @@ import 'package:residents/services/chat_service.dart';
 class ChatController extends GetxController {
   @override
   void onInit() {
-    resident.value = authController.resident.value!;
+    resident = authController.resident;
     super.onInit();
   }
 

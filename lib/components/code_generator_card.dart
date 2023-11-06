@@ -41,8 +41,7 @@ class CodeGeneratorDialog extends GetResponsiveView<CodeController> {
               );
             },
             child: Obx(
-              () => controller.shareCode.value ? shareCard() :
-              generateCard(),
+              () => controller.shareCode.value ? shareCard() : generateCard(),
             ),
           ),
         ],
@@ -60,8 +59,10 @@ class CodeGeneratorDialog extends GetResponsiveView<CodeController> {
                 child: Text(
                   'Share code with guest',
                   style: GoogleFonts.lato(
-                    textStyle:
-                        Theme.of(Get.context!).textTheme.headline6!.copyWith(color: Colors.black),
+                    textStyle: Theme.of(Get.context!)
+                        .textTheme
+                        .headline6!
+                        .copyWith(color: Colors.black),
                   ),
                 ),
               ),
@@ -73,7 +74,8 @@ class CodeGeneratorDialog extends GetResponsiveView<CodeController> {
                     textStyle: Theme.of(Get.context!)
                         .textTheme
                         .headline4!
-                        .copyWith(color: Colors.grey, fontWeight: FontWeight.bold),
+                        .copyWith(
+                            color: Colors.grey, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -146,16 +148,23 @@ class CodeGeneratorDialog extends GetResponsiveView<CodeController> {
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.only(left: 8),
               child: Center(
-                child: TextButton(
-                  onPressed: () => controller.generateCode(),
-                  child: Text(
-                    'Generate',
-                    style: GoogleFonts.lato(
-                        fontSize: 25,
-                        letterSpacing: 5,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
+                child: Obx(
+                  () => controller.isGeneratingCode.value
+                      ? CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3,
+                        )
+                      : TextButton(
+                          onPressed: () => controller.generateCode(),
+                          child: Text(
+                            'Generate',
+                            style: GoogleFonts.lato(
+                                fontSize: 25,
+                                letterSpacing: 5,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                        ),
                 ),
               ),
             ),

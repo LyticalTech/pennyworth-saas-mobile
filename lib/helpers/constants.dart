@@ -56,6 +56,9 @@ class Endpoints {
   static const invoicePayment = "api/Finance/payment";
   static const login = "Auth/login-resident";
   static const generateCode = "SecurityCode/generate";
+  static const getActiveCodes = "SecurityCode/active";
+  static const getInActiveCodes = "SecurityCode/inactive";
+  static const extendCode = "SecurityCode/extend";
   static const powerSource = "PowerSource/get-estate-power-sources/";
   static const powerSupply = "PowerSupply/get-estate-power-supplies/";
   static const requestLinkResend = "api/Admin/refreshActivationLink/";
