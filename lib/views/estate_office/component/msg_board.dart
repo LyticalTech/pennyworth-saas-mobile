@@ -24,18 +24,15 @@ class MessageBoard extends StatelessWidget {
               itemBuilder: (context, index) {
                 final message = snapshot.data![index];
 
-                // DateTime date =
-                //     DateTime.fromMillisecondsSinceEpoch(message['created']);
-                // final formattedDate = DateFormat("dd, MMMM, yyyy").format(date);
+                DateTime date = DateTime.parse(message['created']);
+                final formattedDate = DateFormat("dd, MMMM, yyyy").format(date);
 
                 return ListTile(
                   onTap: () => Get.to(
                     () => MessageDetail(message: {
                       'title': message['title'],
                       'body': message['message'],
-                      // 'created': DateTime.fromMillisecondsSinceEpoch(
-                      //         message['created'])
-                      // .toString(),
+                      'created': DateTime.parse(message['created']).toString(),
                     }),
                   ),
                   title: Padding(
@@ -60,7 +57,7 @@ class MessageBoard extends StatelessWidget {
                   trailing: Padding(
                     padding: EdgeInsets.only(right: 12.0),
                     child: CustomText(
-                      " formattedDate",
+                      formattedDate,
                       size: 12,
                       fontWeight: FontWeight.w500,
                       color: Colors.black54,

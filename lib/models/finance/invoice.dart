@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 class Invoice {
-  String id;
-  String residentId;
+  int id;
+  int residentId;
   // String resident;
   double bill;
   String invoiceDate;
@@ -10,7 +10,7 @@ class Invoice {
   double amountPaid;
   double outstanding;
   String? remarks;
-  String? invoiceNumber;
+  int? invoiceNumber;
   String? paymentMethod;
   int? totalPaid;
   int? totalUnpaid;

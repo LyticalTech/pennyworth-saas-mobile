@@ -69,7 +69,7 @@ class InactiveCodes extends GetResponsiveView<CodeController> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final code = controller.inActiveCodes.value[index];
-                      if (controller.activeCodes.value.isEmpty) {
+                      if (controller.inActiveCodes.value.isEmpty) {
                         return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,

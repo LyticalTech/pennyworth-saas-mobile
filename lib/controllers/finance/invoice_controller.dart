@@ -51,39 +51,34 @@ class FinanceController extends GetxController with StateMixin<List<Invoice>> {
 
       final houseId = resident.value.houseId;
 
-      if (houseId != null) {
-        final endpoint = "${Endpoints.baseUrl}${Endpoints.invoice}$houseId";
-        final response = await ApiService.getRequest(endpoint);
-        if (response['status']) {
-          invoices = parseInvoices(response['response']);
-          change(invoices, status: RxStatus.success());
-          if (invoices.isNotEmpty) {
-            totalEstateInvoice.value = invoices
-                .map((invoice) => invoice.totalAmountCreated)
-                .reduce((value, element) => value + element);
+      final endpoint = "${Endpoints.baseUrl}${Endpoints.invoice}$houseId";
+      final response = await ApiService.getRequest(endpoint);
+      if (response['status']) {
+        invoices = parseInvoices(response['response']);
+        change(invoices, status: RxStatus.success());
+        if (invoices.isNotEmpty) {
+          totalEstateInvoice.value = invoices
+              .map((invoice) => invoice.totalAmountCreated)
+              .reduce((value, element) => value + element);
 
-            totalResidentInvoice.value = invoices
-                .map((invoice) => invoice.outstanding)
-                .reduce((value, element) => value + element);
+          totalResidentInvoice.value = invoices
+              .map((invoice) => invoice.outstanding)
+              .reduce((value, element) => value + element);
 
-            totalPaid.value = invoices
-                .map((invoice) => invoice.amountPaid)
-                .reduce((value, element) => value + element);
+          totalPaid.value = invoices
+              .map((invoice) => invoice.amountPaid)
+              .reduce((value, element) => value + element);
 
-            totalEstatePaid.value = invoices
-                .map((invoice) => invoice.totalAmountPaid)
-                .reduce((value, element) => value + element);
-          }
-          return invoices.isNotEmpty;
-        } else {
-          change([],
-              status: RxStatus.error("You currently do not have any invoice!"));
-          return invoices.isNotEmpty;
-          // throw Exception("You currently do not have any invoice!");
+          totalEstatePaid.value = invoices
+              .map((invoice) => invoice.totalAmountPaid)
+              .reduce((value, element) => value + element);
         }
+        return invoices.isNotEmpty;
       } else {
-        change([], status: RxStatus.error("Resident's unit not found!"));
-        return false;
+        change([],
+            status: RxStatus.error("You currently do not have any invoice!"));
+        return invoices.isNotEmpty;
+        // throw Exception("You currently do not have any invoice!");
       }
     } on SocketException catch (_) {
       change([], status: RxStatus.error("Unable to connect to the internet!"));
@@ -122,8 +117,8 @@ class FinanceController extends GetxController with StateMixin<List<Invoice>> {
     try {
       final Customer customer = Customer(
         name: resident.value.fullName,
-        phoneNumber: resident.value.phone!,
-        email: resident.value.email!,
+        phoneNumber: resident.value.phone,
+        email: resident.value.email,
       );
 
       final Flutterwave flutterwave = Flutterwave(

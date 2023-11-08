@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -214,8 +213,9 @@ class EstateOfficeController extends GetxController
   Future<List<Complaint?>> getComplaintsFromDB(String email) async {
     try {
       change([], status: RxStatus.loading());
-      String endpoint = "${Endpoints.baseUrl}${Endpoints.complaint}/$email";
+      String endpoint = "${Endpoints.baseUrl}${Endpoints.getComplaint}";
       final response = await ApiService.getRequest(endpoint);
+
       if (response['status']) {
         final complaint = parseComplaints(response['response']);
         return complaint;

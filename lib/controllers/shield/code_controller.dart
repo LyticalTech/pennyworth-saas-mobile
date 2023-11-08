@@ -39,6 +39,7 @@ class CodeController extends GetxController {
   var inActiveCodes = Rx<List<Code>>([]);
   RxBool loadingActiveCodes = true.obs;
   RxBool loadingInActiveCodes = true.obs;
+  RxBool isCancelingCode = false.obs;
 
   late final Code code;
   Uri lytical = Uri.parse('lyticaltechnology.com');
@@ -160,11 +161,14 @@ class CodeController extends GetxController {
   void getInActiveCode() async {
     loadingInActiveCodes.value = true;
     var response = await _codeServices.inActiveCode();
-    loadingInActiveCodes.value = false;
+
     response.fold(
       (l) => redSnackBar('Error getting inactive codes'),
-      (r) => inActiveCodes.value = r,
+      (r) {
+        inActiveCodes.value = r;
+      },
     );
+    loadingInActiveCodes.value = false;
   }
 
   int _random() {
@@ -175,16 +179,16 @@ class CodeController extends GetxController {
   Future<void> cancelCode(String codeId) async {
     try {
       _showPleaseWait();
-
-      code.status = 'cancelled';
-
-      _insertIntoInactiveCodeCollection(code);
-
-      _deleteFromActiveCodeCollection(codeId);
-
-      _showToast('Code Cancelled');
+      isCancelingCode.value = true;
+      var response = await _codeServices.cancelCode(codeId);
+      response.fold(
+        (l) => redSnackBar("Error canceling code"),
+        (r) => greenSnackBar("Code canceled"),
+      );
+      isCancelingCode.value = false;
 
       Get.back();
+      _showToast('Code Cancelled');
     } on Exception catch (_) {
       _showToast('Unable to cancel code');
 
@@ -197,14 +201,6 @@ class CodeController extends GetxController {
 
   //   return Code.fromSnapshot(snapshot);
   // }
-
-  Future<void> _deleteFromActiveCodeCollection(String codeId) async {
-    await _activeCodeCollection.doc(codeId).delete();
-  }
-
-  Future<void> _insertIntoInactiveCodeCollection(Code code) async {
-    // await _inactiveCodeCollection.add(code.toSnapshot());
-  }
 
   Future<void> extendCodeByAnHour(String codeId) async {
     try {
