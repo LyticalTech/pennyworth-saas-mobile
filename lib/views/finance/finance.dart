@@ -16,7 +16,7 @@ class Finance extends StatefulWidget {
 
 class _FinanceState extends State<Finance> {
   int _currentIndex = 0;
-  final FinanceController controller = Get.put(FinanceController());
+  
   List screens = [InvoiceScreen(), MaintenanceAndService()];
 
   @override

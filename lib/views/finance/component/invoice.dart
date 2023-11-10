@@ -13,13 +13,13 @@ import 'package:residents/utils/helper_functions.dart';
 import 'package:residents/views/finance/component/invoice_detail.dart';
 
 class InvoiceScreen extends GetView<FinanceController> {
-
   final AppUser? appUser = AppUserController.appUser;
 
   @override
   final FinanceController controller = Get.put(FinanceController());
 
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   final balancePageViewController = PageController(
     initialPage: 0,
@@ -31,6 +31,7 @@ class InvoiceScreen extends GetView<FinanceController> {
 
   @override
   Widget build(BuildContext context) {
+    final FinanceController controller = Get.put(FinanceController());
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: () async {
@@ -80,7 +81,8 @@ class InvoiceScreen extends GetView<FinanceController> {
       child: ListView.separated(
         itemCount: controller.invoices.length,
         itemBuilder: (context, index) => Container(
-          color: (controller.invoices[index].amountPaid == controller.invoices[index].bill)
+          color: (controller.invoices[index].amountPaid ==
+                  controller.invoices[index].bill)
               ? Colors.green.shade50
               : Colors.red.shade50,
           child: ListTile(
@@ -116,38 +118,41 @@ class InvoiceScreen extends GetView<FinanceController> {
                       ],
                     ),
                   SizedBox(height: 4),
-                  if (appUser?.isAdmin == true) Padding(
-                    padding: EdgeInsets.only(bottom: 4.0),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.greenAccent,
-                            borderRadius: BorderRadius.circular(8),
+                  if (appUser?.isAdmin == true)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 4.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.greenAccent,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: CustomText(
+                              "No Res. Paid: ${controller.invoices[index].totalPaid}",
+                              size: 12,
+                              color: Colors.black,
+                            ),
                           ),
-                          child: CustomText(
-                            "No Res. Paid: ${controller.invoices[index].totalPaid}",
-                            size: 12,
-                            color: Colors.black,
-                          ),
-                        ),
-                        SizedBox(width: 12),
-                        Container(
-                          padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.redAccent,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: CustomText(
-                            "No Res. Unpaid: ${controller.invoices[index].totalUnpaid}",
-                            size: 12,
-                            color: Colors.white,
-                          ),
-                        )
-                      ],
+                          SizedBox(width: 12),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: CustomText(
+                              "No Res. Unpaid: ${controller.invoices[index].totalUnpaid}",
+                              size: 12,
+                              color: Colors.white,
+                            ),
+                          )
+                        ],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -158,13 +163,14 @@ class InvoiceScreen extends GetView<FinanceController> {
                 children: [
                   Spacer(),
                   CustomText(
-                    "N${formattedDouble(controller.invoices[index].bill)}",
+                    "N${formattedDouble(controller.invoices[index].outstanding ?? 0)}",
                     size: 14,
                     fontWeight: FontWeight.w600,
                   ),
                   SizedBox(height: 4),
                   CustomText(
-                    DateTime.parse(controller.invoices[index].invoiceDate).formattedDate(),
+                    DateTime.parse(controller.invoices[index].invoiceDate)
+                        .formattedDate(),
                     color: Colors.black54,
                     size: 13,
                   ),

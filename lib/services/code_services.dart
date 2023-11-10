@@ -133,9 +133,8 @@ Powered by $lytical
     }
   }
 
-  Future<Either<Failure, dynamic>> cancelCode(String code) async {
+  Future<Either<Failure, dynamic>> cancelCodeApi(int code) async {
     try {
-     
       var response = await _networkHelper.put(
         Endpoints.cancelCode,
         data: {"codeId": code},
@@ -150,6 +149,7 @@ Powered by $lytical
     } on SocketException {
       return Left(Failure(errorResponse: "Unable to connect to the internet."));
     } on DioException catch (e) {
+      logger.e(e);
       return Left(
         Failure(
           errorResponse: NetworkHelper.onError(e),
@@ -175,6 +175,7 @@ Powered by $lytical
     } on SocketException {
       return Left(Failure(errorResponse: "Unable to connect to the internet."));
     } on DioException catch (e) {
+      logger.e(e);
       return Left(
         Failure(
           errorResponse: NetworkHelper.onError(e),

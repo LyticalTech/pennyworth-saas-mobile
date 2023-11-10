@@ -94,7 +94,7 @@ class InvoiceDetail extends StatelessWidget {
             CustomText("Amount", color: Colors.black54),
             Spacer(),
             CustomText(
-              "N${formattedDouble(invoice.bill)}",
+              "N${formattedDouble(invoice.bill ?? 0)}",
               size: 32,
               fontWeight: FontWeight.w800,
             ),
@@ -279,7 +279,11 @@ class InvoiceDetail extends StatelessWidget {
           children: [
             Icon(Icons.check_circle, color: Colors.green, size: 28),
             SizedBox(width: 4),
-            CustomText("Paid", size: 18, color: Colors.green,),
+            CustomText(
+              "Paid",
+              size: 18,
+              color: Colors.green,
+            ),
           ],
         ),
       ),

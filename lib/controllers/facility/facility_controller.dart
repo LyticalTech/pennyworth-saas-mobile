@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -13,6 +14,7 @@ import 'package:residents/models/facility/facility_response.dart';
 import 'package:residents/services/api_service.dart';
 import 'package:residents/utils/environment.dart';
 import 'package:residents/utils/flutterwave_style.dart';
+import 'package:residents/utils/logger.dart';
 
 class FacilityController extends GetxController
     with StateMixin<List<FacilityResponse>> {
@@ -22,7 +24,7 @@ class FacilityController extends GetxController
   TextEditingController slotController = TextEditingController();
 
   final AuthController authController = Get.find();
-  var resident;
+  late Rx<Resident> resident;
 
   final facilities = <FacilityResponse>[].obs;
   final loading = false.obs;
@@ -30,20 +32,22 @@ class FacilityController extends GetxController
   final bookedFacilities = <BookedFacility>[].obs;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     resident = authController.resident;
-    // resident(authController.resident.value);
-    getAvailableFacilities();
+    resident(authController.resident.value);
+    await getAvailableFacilities();
   }
 
   Future<void> getAvailableFacilities() async {
+    logger.i('facilities');
     try {
       change([], status: RxStatus.loading());
-      final estateId = resident.value.estateId ?? "";
-      String endpoint = "${Endpoints.baseUrl}${Endpoints.facilities}";
-      final response =
-          await ApiService.getRequest(endpoint, param: {'estateId': estateId});
+      final estateId = resident.value.estateId;
+
+      String endpoint = "${Endpoints.baseUrl}${Endpoints.facilities}/$estateId";
+      final response = await ApiService.getRequest(endpoint);
+      logger.i(response['response']);
       if (response['status']) {
         List<FacilityResponse> parsedResponse =
             parseFacilityResponse(response['response']);
@@ -55,6 +59,8 @@ class FacilityController extends GetxController
           status:
               RxStatus.error("Network error! Please check your connection."));
     } catch (error) {
+      logger.i(error);
+
       change([], status: RxStatus.error("Failed to fetch facilities."));
     }
   }
@@ -78,24 +84,31 @@ class FacilityController extends GetxController
         );
         return false;
       }
+// {
+//   "assetId": 0,
+//   "residentId": 0,
+//   "description": "string",
+//   "bookedSlot": 0,
+//   "startDateAndTime": "2023-11-09T21:53:54.376Z",
+//   "endDateAndTime": "2023-11-09T21:53:54.376Z"
+// }
 
       Map<String, dynamic> body = {
         "assetId": facility.id!,
-        "residentEmail": resident.value.email,
+        "residentId": resident.value.id,
         "description": descriptionController.text.trim(),
         "bookedSlot": slotController.text.trim(),
-        "startDate": DateTime.parse(fromDateTimeController.text.trim())
+        "startDateAndTime": DateTime.parse(fromDateTimeController.text.trim())
             .toIso8601String(),
-        "endDate":
-            DateTime.parse(toDateTimeController.text.trim()).toIso8601String(),
-        "startTime": DateTime.parse(fromDateTimeController.text.trim())
-            .toIso8601String(),
-        "endTime":
+        "endDateAndTime":
             DateTime.parse(toDateTimeController.text.trim()).toIso8601String(),
       };
 
-      final response = await ApiService.postRequest(endpoint, body);
+      logger.i(body);
 
+      final response = await ApiService.postRequest(endpoint, body);
+      logger.i(response['response']);
+      logger.i(response['status']);
       if (response['status']) {
         Get.snackbar(
           "Successful",
@@ -144,11 +157,10 @@ class FacilityController extends GetxController
 
   Future<bool> getBookedFacilities() async {
     try {
-      String authUserEmail = resident.value.email!;
-      final endpoint =
-          "${Endpoints.baseUrl}${Endpoints.bookedFacility}$authUserEmail";
+      const endpoint = "${Endpoints.baseUrl}${Endpoints.bookedFacility}";
       final response = await ApiService.getRequest(endpoint);
       if (response['status']) {
+        logger.i(response['response']);
         final returnedFacilities = parseBookedFacilities(response['response']);
         bookedFacilities.clear();
         bookedFacilities.addAll(returnedFacilities);
@@ -173,7 +185,7 @@ class FacilityController extends GetxController
       ));
       return false;
     } catch (error) {
-      print(error);
+      // print(error);
       Get.showSnackbar(GetSnackBar(
         message: "Unable to fetch booked asset.",
         duration: Duration(seconds: 3),
@@ -199,8 +211,8 @@ class FacilityController extends GetxController
       if (!isAvailable) return false;
       final Customer customer = Customer(
         name: 'resident.fullName',
-        phoneNumber: resident.phone!,
-        email: resident.email!,
+        phoneNumber: resident.phone,
+        email: resident.email,
       );
 
       final Flutterwave flutterwave = Flutterwave(

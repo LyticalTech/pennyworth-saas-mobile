@@ -9,6 +9,7 @@ class InactiveCodes extends GetResponsiveView<CodeController> {
 
   @override
   Widget build(BuildContext context) {
+    Get.put(CodeController());
     return Obx(() {
       controller.loadingInActiveCodes.value;
       return ListView.builder(
@@ -64,6 +65,7 @@ class InactiveCodes extends GetResponsiveView<CodeController> {
 
             return CustomScrollView(
               shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               slivers: [
                 SliverList(
                   delegate: SliverChildBuilderDelegate(

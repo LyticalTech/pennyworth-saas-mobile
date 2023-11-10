@@ -54,6 +54,7 @@ class ApiService {
     try {
       http.Response response =
           await http.get(Uri.parse(url), headers: headerData);
+
       if (response.statusCode == 200) {
         return {'status': true, 'response': response.body, 'error': false};
       } else if (response.statusCode == 401) {

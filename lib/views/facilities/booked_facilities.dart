@@ -17,7 +17,6 @@ class BookedFacilities extends StatefulWidget {
 }
 
 class _BookedFacilitiesState extends State<BookedFacilities> {
-
   final FacilityController _controller = Get.find();
 
   @override
@@ -43,6 +42,7 @@ class _BookedFacilitiesState extends State<BookedFacilities> {
                   image: "assets/images/facility.svg",
                   rate: booked.ratePerHour ?? 0,
                   description: booked.description,
+                  capacity: booked.bookedSlot,
                   onTap: () {
                     Get.to(() => BookedFacilityDetail(facility: booked));
                   },
@@ -86,7 +86,8 @@ class _BookedFacilitiesState extends State<BookedFacilities> {
                   Column(
                     children: [
                       Spacer(flex: 2),
-                      Center(child: Lottie.asset("assets/lottie/error_lady.json")),
+                      Center(
+                          child: Lottie.asset("assets/lottie/error_lady.json")),
                       Spacer(flex: 1),
                       Padding(
                         padding: EdgeInsets.all(20),

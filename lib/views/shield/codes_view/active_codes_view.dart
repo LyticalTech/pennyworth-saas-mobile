@@ -84,6 +84,7 @@ class ActiveCodes extends GetResponsiveView<CodeController> {
 
               return CustomScrollView(
                 shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 slivers: [
                   SliverList(
                     delegate: SliverChildBuilderDelegate(

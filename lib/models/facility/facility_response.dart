@@ -4,7 +4,7 @@ class FacilityResponse {
   FacilityResponse({
     this.id,
     this.name,
-    this.rate,
+    this.ratePerHour,
     this.description,
     this.estate,
     this.capacity,
@@ -12,20 +12,22 @@ class FacilityResponse {
   });
 
   FacilityResponse.fromJson(dynamic json) {
-    id = json['id'];
+    id = json['id'] as int;
     name = json['name'];
-    rate = json['rate'];
+    ratePerHour = json['ratePerHour'];
     description = json['description'];
     estate = json['estate'];
+    estateId = json['estateId'];
     capacity = json['capacity'];
     isAvailable = json['isAvailable'];
   }
 
-  String? id;
+  int? id;
   String? name;
-  double? rate;
+  double? ratePerHour;
   String? description;
   String? estate;
+  int? estateId;
   int? capacity;
   bool? isAvailable;
 
@@ -33,7 +35,7 @@ class FacilityResponse {
     final map = <String, dynamic>{};
     map['id'] = id;
     map['name'] = name;
-    map['rate'] = rate;
+    map['rate'] = ratePerHour;
     map['description'] = description;
     map['estate'] = estate;
     map['capacity'] = capacity;
@@ -45,5 +47,7 @@ class FacilityResponse {
 
 List<FacilityResponse> parseFacilityResponse(String responseBody) {
   final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
-  return parsed.map<FacilityResponse>((json) => FacilityResponse.fromJson(json)).toList();
+  return parsed
+      .map<FacilityResponse>((json) => FacilityResponse.fromJson(json))
+      .toList();
 }

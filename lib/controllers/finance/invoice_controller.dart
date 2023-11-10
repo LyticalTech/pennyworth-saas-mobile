@@ -14,6 +14,7 @@ import 'package:residents/models/finance/invoice.dart';
 import 'package:residents/models/finance/service_charge.dart';
 import 'package:residents/services/api_service.dart';
 import 'package:residents/utils/environment.dart';
+import 'package:residents/utils/logger.dart';
 
 class FinanceController extends GetxController with StateMixin<List<Invoice>> {
   List<Invoice> invoices = <Invoice>[].obs;
@@ -50,11 +51,12 @@ class FinanceController extends GetxController with StateMixin<List<Invoice>> {
       change([], status: RxStatus.loading());
 
       final houseId = resident.value.houseId;
-
-      final endpoint = "${Endpoints.baseUrl}${Endpoints.invoice}$houseId";
+      logger.i(invoices);
+      const endpoint = "${Endpoints.baseUrl}${Endpoints.invoice}";
       final response = await ApiService.getRequest(endpoint);
       if (response['status']) {
         invoices = parseInvoices(response['response']);
+        logger.i(invoices);
         change(invoices, status: RxStatus.success());
         if (invoices.isNotEmpty) {
           totalEstateInvoice.value = invoices
@@ -85,7 +87,9 @@ class FinanceController extends GetxController with StateMixin<List<Invoice>> {
       return false;
     } catch (error) {
       log("$error");
+
       change([], status: RxStatus.error("Error Fetching invoices."));
+
       return false;
     }
   }

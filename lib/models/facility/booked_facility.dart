@@ -23,13 +23,16 @@ class BookedFacility {
     bookingDate = json['bookingDate'];
     startDate = json['startDate'];
     endDate = json['endDate'];
+    bookedSlot = json['bookedSlot'];
     startTime = json['startTime'];
     endTime = json['endTime'];
     paymentDate = json['paymentDate'];
     payment = json['payment'];
     bookingAmount = json['bookingAmount'];
     ratePerHour = json['ratePerHour'];
-    totalHours = json['totalHours'] != null ? double.parse(json['totalHours'].toStringAsFixed(2)) : 0;
+    totalHours = json['totalHours'] != null
+        ? double.parse(json['totalHours'].toStringAsFixed(2))
+        : 0;
     bookingStatus = json['bookingStatus'];
     paymentStatus = json['paymentStatus'];
     asset = json['asset'];
@@ -44,6 +47,7 @@ class BookedFacility {
   String? endTime;
   String? paymentDate;
   double? payment;
+  int? bookedSlot;
   double? bookingAmount;
   double? ratePerHour;
   double? totalHours;
@@ -64,7 +68,8 @@ class BookedFacility {
     map['payment'] = payment;
     map['bookingAmount'] = bookingAmount;
     map['ratePerHour'] = ratePerHour;
-    map['totalHours'] = totalHours != null ? double.parse(totalHours!.toStringAsFixed(2)) : 0;
+    map['totalHours'] =
+        totalHours != null ? double.parse(totalHours!.toStringAsFixed(2)) : 0;
     map['bookingStatus'] = bookingStatus;
     map['paymentStatus'] = paymentStatus;
     map['asset'] = asset;
@@ -76,5 +81,7 @@ class BookedFacility {
 
 List<BookedFacility> parseBookedFacilities(String responseBody) {
   final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
-  return parsed.map<BookedFacility>((json) => BookedFacility.fromJson(json)).toList();
+  return parsed
+      .map<BookedFacility>((json) => BookedFacility.fromJson(json))
+      .toList();
 }

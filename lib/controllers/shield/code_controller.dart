@@ -37,7 +37,7 @@ class CodeController extends GetxController {
   // late Stream<List<Code>> _codes;
   var activeCodes = Rx<List<Code>>([]);
   var inActiveCodes = Rx<List<Code>>([]);
-  RxBool loadingActiveCodes = true.obs;
+  RxBool loadingActiveCodes = false.obs;
   RxBool loadingInActiveCodes = true.obs;
   RxBool isCancelingCode = false.obs;
 
@@ -109,7 +109,7 @@ class CodeController extends GetxController {
 
     // if (_house.reservedKey != null && _house.reservedKey!.isNotEmpty) {
     _inactiveCodeCollection = _store.collection(
-        'codes/${authController.resident.value?.houseId}/past_codes');
+        'codes/${authController.resident.value.houseId}/past_codes');
     // }
   }
 
@@ -151,11 +151,12 @@ class CodeController extends GetxController {
   Future<void> getActiveCode() async {
     loadingActiveCodes.value = true;
     var response = await _codeServices.activeCode();
-    loadingActiveCodes.value = false;
+
     response.fold(
       (l) => redSnackBar('Error getting active codes'),
       (r) => activeCodes.value = r,
     );
+    loadingActiveCodes.value = false;
   }
 
   void getInActiveCode() async {
@@ -176,18 +177,25 @@ class CodeController extends GetxController {
     return min + random.nextInt(max - min);
   }
 
-  Future<void> cancelCode(String codeId) async {
+  Future<void> cancelCode(int codeId) async {
     try {
-      _showPleaseWait();
       isCancelingCode.value = true;
-      var response = await _codeServices.cancelCode(codeId);
+      loadingActiveCodes.value = true;
+      var response = await _codeServices.cancelCodeApi(codeId);
       response.fold(
-        (l) => redSnackBar("Error canceling code"),
-        (r) => greenSnackBar("Code canceled"),
+        (l) {
+          redSnackBar("Error canceling code");
+        },
+        (r) async {
+          await getActiveCode();
+          Get.back();
+        },
       );
+      // Get.back();
+      loadingActiveCodes.value = false;
       isCancelingCode.value = false;
 
-      Get.back();
+      // Get.back();
       _showToast('Code Cancelled');
     } on Exception catch (_) {
       _showToast('Unable to cancel code');

@@ -12,6 +12,7 @@ class CodeGeneratorDialog extends GetResponsiveView<CodeController> {
 
   @override
   Widget build(BuildContext context) {
+    Get.put(CodeController());
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,

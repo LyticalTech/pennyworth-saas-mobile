@@ -6,65 +6,72 @@ import 'package:residents/models/other/code.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:shimmer/shimmer.dart';
 
-class CancelCodeView extends GetResponsiveView<CodeController> {
+class CancelCodeView extends GetResponsiveView {
   CancelCodeView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Get.lazyPut(() => CodeController());
+    CodeController controller = Get.put(CodeController());
     return Material(
       child: Obx(
         () {
-          controller.isCancelingCode.value;
+          controller.loadingActiveCodes.value ||
+              controller.loadingActiveCodes.value;
           return ListView.builder(
               itemCount: 1,
               itemBuilder: (context, index) {
-                if (controller.isCancelingCode.value) {
-                  return CustomScrollView(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    slivers: [
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            return ListTile(
-                              leading: Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                  height: 60.0,
-                                  width: 60.0,
-                                  color: Colors.grey[300],
-                                ),
+                if (controller.isCancelingCode.value ||
+                    controller.loadingActiveCodes.value) {
+                  return Obx(() => controller.isCancelingCode.value ||
+                          controller.loadingActiveCodes.value
+                      ? CustomScrollView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          slivers: [
+                            SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  return ListTile(
+                                    leading: Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Container(
+                                        height: 60.0,
+                                        width: 60.0,
+                                        color: Colors.grey[300],
+                                      ),
+                                    ),
+                                    title: Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Container(
+                                          height: 16.0,
+                                          color: Colors.grey[300]),
+                                    ),
+                                    subtitle: Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Container(
+                                          height: 16.0,
+                                          color: Colors.grey[300]),
+                                    ),
+                                    trailing: Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Container(
+                                        height: 30.0,
+                                        width: 57.0,
+                                        color: Colors.grey[300],
+                                      ),
+                                    ),
+                                  );
+                                },
+                                childCount: 10,
                               ),
-                              title: Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                    height: 16.0, color: Colors.grey[300]),
-                              ),
-                              subtitle: Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                    height: 16.0, color: Colors.grey[300]),
-                              ),
-                              trailing: Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                  height: 30.0,
-                                  width: 57.0,
-                                  color: Colors.grey[300],
-                                ),
-                              ),
-                            );
-                          },
-                          childCount: 10,
-                        ),
-                      ),
-                    ],
-                  );
+                            ),
+                          ],
+                        )
+                      : SizedBox.shrink());
                 }
                 {
                   if (controller.activeCodes.value.isEmpty) {
@@ -129,7 +136,7 @@ class CancelCodeView extends GetResponsiveView<CodeController> {
                                     backgroundColor: Colors.red,
                                   ),
                                   onPressed: () =>
-                                      controller.cancelCode(code.code),
+                                      controller.cancelCode(code.codeId),
                                   child: const Text(
                                     'Cancel',
                                     style: TextStyle(

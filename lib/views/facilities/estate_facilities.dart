@@ -16,7 +16,8 @@ class EstateFacilities extends GetView<FacilityController> {
     Get.to(() => BookFacility(facility: facility));
   }
 
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   final controller = Get.put(FacilityController());
@@ -57,7 +58,8 @@ class EstateFacilities extends GetView<FacilityController> {
                   return Column(
                     children: [
                       Spacer(flex: 2),
-                      Center(child: Lottie.asset("assets/lottie/error_lady.json")),
+                      Center(
+                          child: Lottie.asset("assets/lottie/error_lady.json")),
                       Spacer(flex: 1),
                       CustomText(
                         "$error",
@@ -85,7 +87,7 @@ class EstateFacilities extends GetView<FacilityController> {
         return FacilityCard(
           title: facility.name ?? "",
           image: "assets/images/facility.svg",
-          rate: facility.rate!,
+          rate: facility.ratePerHour!,
           description: facility.description,
           capacity: facility.capacity,
           onTap: () => _gotoBookFacility(facility),
