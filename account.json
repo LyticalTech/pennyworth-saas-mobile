@@ -1,4 +1,8 @@
 {
     "Email": "ibukun.james@yahoo.com",
-    "Password": "Kazeem808155"
+    "Password": "Kazeem808155",
+    "issue": [
+        "change invoice number to bill number",
+        "Asset availability status"
+    ]
 }

@@ -5,6 +5,7 @@ import 'package:residents/components/text.dart';
 import 'package:residents/controllers/facility/facility_controller.dart';
 import 'package:residents/models/facility/booked_facility.dart';
 import 'package:residents/utils/app_theme.dart';
+import 'package:residents/utils/dates_utils.dart';
 import 'package:residents/utils/helper_functions.dart';
 
 class BookedFacilityDetail extends StatelessWidget {
@@ -48,11 +49,15 @@ class BookedFacilityDetail extends StatelessWidget {
         child: RichText(
           text: TextSpan(
             text: "Asset:  ",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87),
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87),
             children: [
               TextSpan(
                 text: facility.asset,
-                style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black87),
+                style: TextStyle(
+                    fontWeight: FontWeight.normal, color: Colors.black87),
               )
             ],
           ),
@@ -86,14 +91,14 @@ class BookedFacilityDetail extends StatelessWidget {
                 Expanded(
                   child: buildInfoItems(
                     "Start Date",
-                    facility.startDate ?? "",
+                    formatDateDMY(DateTime.tryParse(facility.startDate ?? '')),
                     valueSize: 16,
                   ),
                 ),
                 Expanded(
                   child: buildInfoItems(
                     "End Date",
-                    facility.endDate ?? "",
+                    formatDateDMY(DateTime.tryParse(facility.endDate ?? '')),
                     valueSize: 16,
                     crossAxisAlignment: CrossAxisAlignment.end,
                   ),
@@ -105,14 +110,14 @@ class BookedFacilityDetail extends StatelessWidget {
                 Expanded(
                   child: buildInfoItems(
                     "Start Time",
-                    facility.startTime ?? "",
+                    formatTime(DateTime.tryParse(facility.startDate!)),
                     valueSize: 16,
                   ),
                 ),
                 Expanded(
                   child: buildInfoItems(
                     "End Time",
-                    facility.endTime ?? "",
+                    formatTime(DateTime.tryParse(facility.endDate!)),
                     valueSize: 16,
                     crossAxisAlignment: CrossAxisAlignment.end,
                   ),
@@ -208,9 +213,10 @@ class BookedFacilityDetail extends StatelessWidget {
           } else {}
         },
         style: TextButton.styleFrom(
-          backgroundColor: (facility.bookingStatus == 1 && facility.paymentStatus == 0)
-              ? AppTheme.primaryColor
-              : Colors.grey,
+          backgroundColor:
+              (facility.bookingStatus == 1 && facility.paymentStatus == 0)
+                  ? AppTheme.primaryColor
+                  : Colors.grey,
           foregroundColor: Colors.white,
         ),
         child: CustomText(

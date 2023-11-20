@@ -7,6 +7,7 @@ import 'package:lottie/lottie.dart';
 import 'package:residents/components/text.dart';
 import 'package:residents/controllers/office/estate_office_controller.dart';
 import 'package:residents/models/estate_office/messages.dart';
+import 'package:residents/utils/dates_utils.dart';
 import 'package:residents/utils/helper_functions.dart';
 
 class ComplaintHistory extends StatefulWidget {
@@ -40,7 +41,8 @@ class _ComplaintHistoryState extends State<ComplaintHistory> {
       ),
       body: FutureBuilder(
         future: estateController.getComplaintsFromDB(residentEmail),
-        builder: (BuildContext context, AsyncSnapshot<List<Complaint?>> snapshot) {
+        builder:
+            (BuildContext context, AsyncSnapshot<List<Complaint?>> snapshot) {
           if (snapshot.hasData) {
             return snapshot.data!.isNotEmpty
                 ? ListView.separated(
@@ -51,9 +53,12 @@ class _ComplaintHistoryState extends State<ComplaintHistory> {
                       final title = snapshot.data![index]?.title ?? "";
                       final message = snapshot.data![index]?.message ?? "";
                       return ListTile(
-                        title: CustomText(title, size: 17, fontWeight: FontWeight.w500),
-                        subtitle: CustomText(message, size: 14, fontWeight: FontWeight.w400, maxLine: 1),
-                        onTap: () => _showBottomSheet(context, snapshot.data![index]!),
+                        title: CustomText(title,
+                            size: 17, fontWeight: FontWeight.w500),
+                        subtitle: CustomText(message,
+                            size: 14, fontWeight: FontWeight.w400, maxLine: 1),
+                        onTap: () =>
+                            _showBottomSheet(context, snapshot.data![index]!),
                       );
                     },
                     separatorBuilder: (context, index) => Divider(),
@@ -127,7 +132,8 @@ class _ComplaintHistoryState extends State<ComplaintHistory> {
                 ),
               ),
               _labelItem("Title", complaint.title ?? ""),
-              _labelItem("Date", complaint.date ?? ""),
+              _labelItem(
+                  "Date", formatDateTime(DateTime.parse(complaint.date!))),
               _labelItem(
                 "Status",
                 status,

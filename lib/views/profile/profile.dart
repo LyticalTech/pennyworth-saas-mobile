@@ -46,23 +46,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _rowItem("Name", _resident.fullName),
             _rowItem("Phone", _resident.phone ?? ""),
             _rowItem("Email", _resident.email ?? ""),
-            _rowItem("Gender", _resident.address ?? ""),
+            // _rowItem("Gender", _resident.address ?? ""),
             _rowItem("Address", _resident.houseAddress ?? ""),
             SizedBox(height: 24),
             CustomText("Additional Info",
                 size: 20, fontWeight: FontWeight.w600),
-            _dependantsList(),
+            _dependantList(),
           ],
         ),
       ),
     );
   }
 
-  Widget _dependantsList() {
-    final residentDependants = [];
-    if (residentDependants.isNotEmpty) {
+  Widget _dependantList() {
+    final residentDependents = [];
+    if (residentDependents.isNotEmpty) {
       List<Widget> dependants = [];
-      for (final dependant in residentDependants) {
+      for (final dependant in residentDependents) {
         dependants.add(_rowItem("Name", "${dependant.fullName}"));
       }
       return Column(children: dependants);
