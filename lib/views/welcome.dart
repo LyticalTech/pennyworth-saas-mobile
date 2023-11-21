@@ -25,18 +25,20 @@ class WelcomeScreen extends StatefulWidget {
   State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateMixin {
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with TickerProviderStateMixin {
   late String fullName;
-  final EstateOfficeController officeController = Get.put(EstateOfficeController());
+  final EstateOfficeController officeController =
+      Get.put(EstateOfficeController());
   final AuthController authController = Get.find();
 
   @override
   void initState() {
     super.initState();
     authController.loginAndPrepFirebase();
-    authController.notificationService?.initialise();
+    
 
-    log("${authController.resident.value!.estateId} => ${authController.resident.value!.estateName}");
+    log("${authController.resident.value.estateId} => ${authController.resident.value.estateName}");
   }
 
   @override
@@ -51,7 +53,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
     return AppBar(
       title: Text(
         "PENNYWORTH",
-        style: GoogleFonts.breeSerif(color: Colors.deepOrangeAccent, fontWeight: FontWeight.w900),
+        style: GoogleFonts.breeSerif(
+            color: Colors.deepOrangeAccent, fontWeight: FontWeight.w900),
       ),
       actions: [
         PopupMenuButton(
@@ -100,7 +103,7 @@ class _MainModulesState extends State<MainModules> {
 
   @override
   void initState() {
-    residentFullName = controller.resident.value!.fullName;
+    residentFullName = controller.resident.value.fullName;
     super.initState();
   }
 
@@ -127,7 +130,8 @@ class _MainModulesState extends State<MainModules> {
                   children: [
                     TextSpan(
                       text: residentFullName,
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -138,7 +142,8 @@ class _MainModulesState extends State<MainModules> {
                 ModulesCard(
                   title: "Estate Office",
                   icon: CupertinoIcons.home,
-                  onTap: () => gotoScreen(context: context, screen: EstateOffice()),
+                  onTap: () =>
+                      gotoScreen(context: context, screen: EstateOffice()),
                 ),
                 SizedBox(width: 12),
                 ModulesCard(
@@ -153,13 +158,15 @@ class _MainModulesState extends State<MainModules> {
                 ModulesCard(
                   title: "Power",
                   icon: Icons.flash_on_rounded,
-                  onTap: () => gotoScreen(context: context, screen: SourceSupplies()),
+                  onTap: () =>
+                      gotoScreen(context: context, screen: SourceSupplies()),
                 ),
                 SizedBox(width: 12),
                 ModulesCard(
                   title: "Facilities",
                   icon: CupertinoIcons.building_2_fill,
-                  onTap: () => gotoScreen(context: context, screen: EstateFacilities()),
+                  onTap: () =>
+                      gotoScreen(context: context, screen: EstateFacilities()),
                 )
               ],
             ),
@@ -183,7 +190,8 @@ class _MainModulesState extends State<MainModules> {
                 ModulesCard(
                   title: "Estate Community",
                   icon: CupertinoIcons.group_solid,
-                  onTap: () => gotoScreen(context: context, screen: Community()),
+                  onTap: () =>
+                      gotoScreen(context: context, screen: Community()),
                 ),
               ],
             ),

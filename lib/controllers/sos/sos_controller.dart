@@ -1,9 +1,9 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:residents/helpers/constants.dart';
 import 'package:residents/services/api_service.dart';
+import 'package:residents/utils/logger.dart';
 
 class SOSController extends GetxController {
   SOSController();
@@ -15,12 +15,18 @@ class SOSController extends GetxController {
     required String residentName,
     required String residentAddress,
   }) async {
-    Map<String, String> message = {"resident": residentName, "address": residentAddress, "estateId": estateId};
+    Map<String, String> message = {
+      "resident": residentName,
+      "address": residentAddress,
+      "estateId": estateId
+    };
     try {
       loading.value = true;
 
-      final response = await ApiService.postRequest(Endpoints.sendPanicMessage, message);
+      final response = await ApiService.postRequest(
+          "${Endpoints.baseUrl}${Endpoints.sendPanicMessage}", message);
 
+      logger.i(response);
       if (response['status']) {
         Get.showSnackbar(GetSnackBar(
           message: "Success: Residents notified of Emergency!",

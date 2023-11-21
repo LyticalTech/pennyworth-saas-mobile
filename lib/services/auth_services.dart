@@ -53,6 +53,7 @@ class AuthServices {
   Future<Either<Failure, Resident>> signIn(
     String email,
     String password,
+    String? token,
   ) async {
     try {
       var response = await _networkHelper.post(
@@ -60,6 +61,7 @@ class AuthServices {
         data: {
           "email": email,
           "password": password,
+          "registrationToken": token
         },
       );
 

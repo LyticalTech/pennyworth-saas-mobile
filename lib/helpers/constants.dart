@@ -65,9 +65,7 @@ class Endpoints {
   static const powerSource = "PowerSource/get-estate-power-sources/";
   static const powerSupply = "PowerSupply/get-estate-power-supplies/";
   static const requestLinkResend = "api/Admin/refreshActivationLink/";
-  static const sendPanicMessage =
-      "https://us-central1-middle-chase.cloudfunctions"
-      ".net/sendPanicToEstateResident";
+  static const sendPanicMessage = "/Notifications/sos";
 
   static const serviceCharge = "api/Finance/service-charge";
 }

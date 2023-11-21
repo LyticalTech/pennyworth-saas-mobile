@@ -50,20 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyB62ogbjBs6V8gP4BluvaiVkkwxT3H7OWg',
-    appId: '1:948404729293:android:f51e331b76f25deabc4084',
-    messagingSenderId: '948404729293',
-    projectId: 'middle-chase',
-    storageBucket: 'middle-chase.appspot.com',
+    apiKey: 'AIzaSyBjCv7K4a6_UFvT-RVCyB7zlLzd6dqny8s',
+    appId: '1:1055895725999:android:b8ad40c434f68b563cb15a',
+    messagingSenderId: '1055895725999',
+    projectId: 'pennyworth-saas',
+    storageBucket: 'pennyworth-saas.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDYVIyv0WueIOwfE_90RqH17B2b_rVyltI',
-    appId: '1:948404729293:ios:ae9f53082891ca58bc4084',
-    messagingSenderId: '948404729293',
-    projectId: 'middle-chase',
-    storageBucket: 'middle-chase.appspot.com',
-    iosClientId: '948404729293-8dog312mf1ukdcsvpieib7pa6ie8qa6t.apps.googleusercontent.com',
+    apiKey: 'AIzaSyDAraHzEWXSr_15wc1YKotF-ZabgKvJlec',
+    appId: '1:1055895725999:ios:51fcbd47454dfda13cb15a',
+    messagingSenderId: '1055895725999',
+    projectId: 'pennyworth-saas',
+    storageBucket: 'pennyworth-saas.appspot.com',
     iosBundleId: 'com.pennyworth.middlechase',
   );
 }

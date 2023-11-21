@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -13,7 +12,6 @@ import 'package:residents/models/facility/booked_facility.dart';
 import 'package:residents/models/facility/facility_response.dart';
 import 'package:residents/services/api_service.dart';
 import 'package:residents/utils/environment.dart';
-import 'package:residents/utils/flutterwave_style.dart';
 import 'package:residents/utils/logger.dart';
 
 class FacilityController extends GetxController

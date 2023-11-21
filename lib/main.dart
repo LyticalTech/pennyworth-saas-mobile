@@ -31,7 +31,7 @@ Future<void> main() async {
     await Hive.openBox('storage');
     await dotenv.load(fileName: Environment.envFile);
     await Firebase.initializeApp(
-      name: 'residents',
+      name: 'Pennyworth sass',
       options: DefaultFirebaseOptions.currentPlatform,
     );
 

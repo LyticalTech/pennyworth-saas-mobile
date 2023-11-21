@@ -73,7 +73,7 @@ class AuthController extends GetxController {
 
   final TextEditingController $password = TextEditingController();
 
-  PushNotificationService? notificationService;
+  var notificationService = PushNotificationService();
 
   final FirebaseMessaging messaging = FirebaseMessaging.instance;
 
@@ -104,13 +104,14 @@ class AuthController extends GetxController {
   final preference = AppPreferences();
 
   final isAuthenticated = false.obs;
-
+  String? fcmToken;
   User? firebaseAuthUser;
 
   @override
   Future<void> onInit() async {
     _authServices = AuthServices();
     await preference.initialize();
+    fcmToken = await notificationService.initialize();
     final accessToken = preference.getString("accessToken", "");
     final authUserId = preference.getString("authUserId", "");
     isAuthenticated.value = accessToken.isNotEmpty && authUserId.isNotEmpty;
@@ -285,7 +286,7 @@ class AuthController extends GetxController {
 
   Future<void> signIn({required String email, required String password}) async {
     isLoading.value = true;
-    var res = await _authServices.signIn(email, password);
+    var res = await _authServices.signIn(email, password, fcmToken);
     res.fold(
       (l) => logger.e(l.errorResponse),
       (r) {
@@ -456,16 +457,16 @@ class AuthController extends GetxController {
 
   static User getAuthUser() => FirebaseAuth.instance.currentUser!;
 
-  Future<void> updateAuthUserToken(String userId, String fcmToken) async {
-    DocumentReference docRef =
-        FirebaseFirestore.instance.collection("residents").doc(userId);
+  // Future<void> updateAuthUserToken(String userId, String fcmToken) async {
+  //   DocumentReference docRef =
+  //       FirebaseFirestore.instance.collection("residents").doc(userId);
 
-    docRef.get().then((snapshot) {
-      if (snapshot.data() != null) {
-        docRef.update({'fcmToken': fcmToken});
-      }
-    });
-  }
+  //   docRef.get().then((snapshot) {
+  //     if (snapshot.data() != null) {
+  //       docRef.update({'fcmToken': fcmToken});
+  //     }
+  //   });
+  // }
 
   Stream<QuerySnapshot<House>> fetchHouseAddresses(String estateId) {
     return houseController.getAllHouses(estateId);

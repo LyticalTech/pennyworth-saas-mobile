@@ -13,7 +13,6 @@ class MaintenanceAndService extends StatefulWidget {
 }
 
 class _MaintenanceAndServiceState extends State<MaintenanceAndService> {
-
   final FinanceController _controller = Get.find();
   late Future<bool> servicesFuture;
 
@@ -32,37 +31,57 @@ class _MaintenanceAndServiceState extends State<MaintenanceAndService> {
     return Padding(
       padding: EdgeInsets.only(top: 12.0),
       child: FutureBuilder(
-        builder: (context, snapshot) {
-          if (snapshot.hasData || _controller.serviceCharges.isNotEmpty) {
-            return ListView.separated(
-              itemCount: _controller.serviceCharges.length,
-              itemBuilder: (context, index) => ListTile(
-                title: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12.0),
-                  child: CustomText(_controller.serviceCharges[index].item, size: 16, fontWeight: FontWeight.w500,),
-                ),
-                onTap: () { _showBottomSheet(context, _controller.serviceCharges[index]); },
-                minVerticalPadding: 2,
-                subtitle: Padding(
-                  padding: EdgeInsets.only(left: 12.0, top: 8),
-                  child: Row(
-                    children: [
-                      _buildBottomItem("Amount", formattedDouble(_controller.serviceCharges[index].amount)),
-                      Spacer(flex: 1),
-                      _buildBottomItem("Date", DateTime.parse(_controller.serviceCharges[index].date).formattedDate()),
-                      Spacer(flex: 3),
-                    ],
+          future: null,
+          builder: (context, snapshot) {
+            if (snapshot.hasData || _controller.serviceCharges.isNotEmpty) {
+              return ListView.separated(
+                itemCount: _controller.serviceCharges.length,
+                itemBuilder: (context, index) => ListTile(
+                  title: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.0),
+                    child: CustomText(
+                      _controller.serviceCharges[index].item,
+                      size: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
+                  onTap: () {
+                    _showBottomSheet(
+                        context, _controller.serviceCharges[index]);
+                  },
+                  minVerticalPadding: 2,
+                  subtitle: Padding(
+                    padding: EdgeInsets.only(left: 12.0, top: 8),
+                    child: Row(
+                      children: [
+                        _buildBottomItem(
+                            "Amount",
+                            formattedDouble(
+                                _controller.serviceCharges[index].amount)),
+                        Spacer(flex: 1),
+                        _buildBottomItem(
+                            "Date",
+                            DateTime.parse(
+                                    _controller.serviceCharges[index].date)
+                                .formattedDate()),
+                        Spacer(flex: 3),
+                      ],
+                    ),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 0),
                 ),
-                contentPadding: EdgeInsets.symmetric(vertical: 0),
-              ),
-              separatorBuilder: (context, index) => Divider(thickness: 1, height: 3, color: Colors.black12,),
-            );
-          } else {
-            return Center(child: Image.asset("assets/images/no_data.png"),);
-          }
-        }
-      ),
+                separatorBuilder: (context, index) => Divider(
+                  thickness: 1,
+                  height: 3,
+                  color: Colors.black12,
+                ),
+              );
+            } else {
+              return Center(
+                child: Image.asset("assets/images/no_data.png"),
+              );
+            }
+          }),
     );
   }
 
@@ -75,10 +94,7 @@ class _MaintenanceAndServiceState extends State<MaintenanceAndService> {
         decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16)
-            )
-        ),
+                topLeft: Radius.circular(16), topRight: Radius.circular(16))),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,15 +108,20 @@ class _MaintenanceAndServiceState extends State<MaintenanceAndService> {
                     margin: EdgeInsets.only(bottom: 24),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(2.5),
-                        color: Colors.grey
-                    ),
+                        color: Colors.grey),
                   ),
                 ),
               ),
-              SizedBox(height: 12,),
+              SizedBox(
+                height: 12,
+              ),
               buildItem(title: "Service", value: serviceCharge.item),
-              buildItem(title: "Amount", value: formattedDouble(serviceCharge.amount)),
-              buildItem(title: "Date", value: DateTime.parse(serviceCharge.date).formattedDate()),
+              buildItem(
+                  title: "Amount",
+                  value: formattedDouble(serviceCharge.amount)),
+              buildItem(
+                  title: "Date",
+                  value: DateTime.parse(serviceCharge.date).formattedDate()),
               buildItem(title: "Remarks", value: serviceCharge.remarks ?? "-"),
             ],
           ),
@@ -111,18 +132,15 @@ class _MaintenanceAndServiceState extends State<MaintenanceAndService> {
 
   Widget _buildBottomItem(String title, String value) {
     return RichText(
-        text: TextSpan(
+      text: TextSpan(
         text: "$title: ",
         style: TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: 12,
-          color: Colors.black54
-        ),
+            fontWeight: FontWeight.w700, fontSize: 12, color: Colors.black54),
         children: [
           TextSpan(
-            text: value,
-            style: TextStyle(fontWeight: FontWeight.normal, fontStyle: FontStyle.italic)
-          ),
+              text: value,
+              style: TextStyle(
+                  fontWeight: FontWeight.normal, fontStyle: FontStyle.italic)),
         ],
       ),
     );
