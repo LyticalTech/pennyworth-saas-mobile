@@ -1,13 +1,47 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:residents/helpers/constants.dart';
 import 'package:residents/models/community/chat_message.dart';
 import 'package:residents/models/other/firebase_resident.dart';
+import 'package:residents/models/other/status.dart';
+import 'package:residents/utils/network_base.dart';
+
+import '../models/chat/contact.dart';
+import '../utils/logger.dart';
 
 class ChatService {
   static FirebaseDatabase database = FirebaseDatabase.instance;
   static const conversations = "conversations";
   static const messages = "messages";
+  final NetworkHelper _networkHelper = NetworkHelper(Endpoints.baseUrl);
+
+  Future<Either<Failure, List<Contact>>> getContacts(
+    String estateId,
+  ) async {
+    try {
+      var response = await _networkHelper.get(
+        "${Endpoints.getAllContacts}/$estateId",
+      );
+
+      var hasError = isBadStatusCode(response.statusCode!);
+      if (hasError) {
+        return Left(Failure(errorResponse: response));
+      }
+      logger.i(response);
+      List<Contact> contacts = (response.data as List)
+          .map((json) => Contact.fromJson(json))
+          .toList();
+      return Right(contacts);
+    } on SocketException {
+      return Left(Failure(errorResponse: "Unable to connect to the internet."));
+    } on DioException catch (e) {
+      return Left(Failure(errorResponse: NetworkHelper.onError(e)));
+    }
+  }
 
   static Future<void> saveMessage({
     required FirebaseResident authUser,
@@ -16,7 +50,11 @@ class ChatService {
     required ChatMessage message,
     bool isCommunity = false,
   }) async {
-    database.ref("$conversations/$convoId/$messages").push().set(message.toJson()).then((_) {
+    database
+        .ref("$conversations/$convoId/$messages")
+        .push()
+        .set(message.toJson())
+        .then((_) {
       if (recipient != null && !isCommunity) {
         addConversationInfoFor(authUser, recipient, message.text);
       } else {
@@ -53,11 +91,13 @@ class ChatService {
     });
   }
 
-  static Future<void> addConversationInfoFor(
-      FirebaseResident authUser, FirebaseResident recipient, String lastMessage) async {
+  static Future<void> addConversationInfoFor(FirebaseResident authUser,
+      FirebaseResident recipient, String lastMessage) async {
     final convoId = "${authUser.uid}_${recipient.uid}";
     final dateTime = DateTime.now().toString();
-    final ownRef = database.ref("residents/${authUser.uid}/recipients").child("${recipient.uid}");
+    final ownRef = database
+        .ref("residents/${authUser.uid}/recipients")
+        .child("${recipient.uid}");
     ownRef.push();
     ownRef
         .set(({
@@ -68,7 +108,9 @@ class ChatService {
       "date": dateTime,
     }))
         .then((value) {
-      final recipientRef = database.ref("residents/${recipient.uid}/recipients").child(authUser.uid!);
+      final recipientRef = database
+          .ref("residents/${recipient.uid}/recipients")
+          .child(authUser.uid!);
       recipientRef.push();
       recipientRef.set({
         "convo_id": convoId,
@@ -80,18 +122,23 @@ class ChatService {
     });
   }
 
-  static Future<void> updateConvoInfoFor(String authUserId, String recipientId, String lastMessage) async {
+  static Future<void> updateConvoInfoFor(
+      String authUserId, String recipientId, String lastMessage) async {
     if (lastMessage.isNotEmpty) {
       final update = {"last_message": lastMessage};
-      final ownRef = database.ref("residents/$authUserId/recipients").child(recipientId);
-      final recipientRef = database.ref("residents/$recipientId/recipients").child(authUserId);
+      final ownRef =
+          database.ref("residents/$authUserId/recipients").child(recipientId);
+      final recipientRef =
+          database.ref("residents/$recipientId/recipients").child(authUserId);
       ownRef.update(update).then((_) => recipientRef.update(update));
     }
   }
 
-  static Future<String?> fetchConversationIdFor(String authUserId, String recipientId) async {
+  static Future<String?> fetchConversationIdFor(
+      String authUserId, String recipientId) async {
     final ref = database.ref();
-    final snapshot = await ref.child("residents/$authUserId/recipients/$recipientId").get();
+    final snapshot =
+        await ref.child("residents/$authUserId/recipients/$recipientId").get();
 
     if (snapshot.exists) {
       final convoObject = snapshot.value as Map?;

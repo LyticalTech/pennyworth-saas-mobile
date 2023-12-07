@@ -11,6 +11,7 @@ import 'package:residents/controllers/community/market_controller.dart';
 import 'package:residents/helpers/constants.dart';
 import 'package:residents/utils/color_picker.dart';
 import 'package:residents/utils/helper_functions.dart';
+import 'package:residents/utils/logger.dart';
 
 class Body extends StatefulWidget {
   @override
@@ -27,19 +28,36 @@ class _BodyState extends State<Body> {
   }
 
   void _handleAddProduct() async {
-    var product = await _controller.addProduct();
-    if (product == null && _controller.errorList.contains("image")) {
-      _controller.errorList.clear();
-      Get.snackbar("Product Image", "Please select at least one image for product.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-    } else {
-      setState(() {
-        _selectedImages.clear();
-      });
-      _controller.reset();
-      Get.back();
+    try {
+      var product = await _controller.addProduct();
+      if (!product  && _controller.errorList.contains("image")) {
+        _controller.errorList.clear();
+        Get.snackbar(
+            "Product Image", "Please select at least one image for product.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+      } else {
+        if (product == null) {
+          _controller.errorList.clear();
+          Get.snackbar(
+            "Product Image",
+            "Please fill all fields in the form",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
+          );
+          return;
+        }
+        setState(() {
+          _selectedImages.clear();
+        });
+        _controller.reset();
+        Get.back();
+      }
+    } on Exception catch (e) {
+      logger.i(e);
+      return null;
     }
   }
 
@@ -74,7 +92,8 @@ class _BodyState extends State<Body> {
                     child: Container(
                       color: Colors.black26,
                       child: Center(
-                        child: customActivityIndicator(size: 32, color: Colors.white),
+                        child: customActivityIndicator(
+                            size: 32, color: Colors.white),
                       ),
                     ),
                   )
@@ -205,7 +224,8 @@ class _BodyState extends State<Body> {
       builder: (context) {
         return AlertDialog(
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           content: SingleChildScrollView(
             child: SizedBox(
               width: size.width * 0.8,
@@ -222,7 +242,8 @@ class _BodyState extends State<Body> {
                           onTap: () {
                             pickColor(entry.key);
                           },
-                          isSelected: entry.key == _controller.productColor.value,
+                          isSelected:
+                              entry.key == _controller.productColor.value,
                         ),
                       ),
                     )

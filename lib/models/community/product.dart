@@ -1,55 +1,75 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:residents/models/other/firebase_resident.dart';
-
 class Product {
-  final String name;
-  final String? id, description, color;
-  final List<String> images;
-  final double price;
-  final double? size;
-  final FirebaseResident? seller;
-  final String sellerId;
-  final bool outOfStock;
+  int id;
+  String name;
+  String description;
+  double price;
+  String size;
+  String color;
+  SellerDetails seller;
+  bool isOutOfStock;
+  List<String> imagesPaths;
 
   Product({
-    this.seller,
-    required this.images,
+    required this.id,
     required this.name,
+    required this.description,
     required this.price,
-    required this.sellerId,
-    this.id,
-    this.description,
-    this.color,
-    this.size,
-    this.outOfStock = false
+    required this.size,
+    required this.color,
+    required this.seller,
+    required this.imagesPaths,
+    required this.isOutOfStock,
   });
 
-  factory Product.fromSnapshot(DocumentSnapshot snapshot) {
+  factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: snapshot.id,
-      name: snapshot["name"],
-      description: snapshot["description"],
-      color: snapshot["color"],
-      images: (snapshot["images"] as List).map((item) => item as String).toList(),
-      price: snapshot["price"],
-      size: snapshot["size"],
-      outOfStock: snapshot["out_of_stock"] ?? false,
-      seller: FirebaseResident.fromJson(snapshot["seller"]),
-      sellerId: snapshot['sellerId'],
+      id: json['id'],
+      name: json['name'],
+      description: json['description'],
+      price: json['price'].toDouble(),
+      size: json['size'],
+      color: json['color'],
+      seller: SellerDetails.fromJson(json['sellerDetails']),
+      imagesPaths: List<String>.from(json['imagesPaths']),
+      isOutOfStock: json['isOutOfStock'],
     );
   }
+}
 
-  Map<String, dynamic> toJson() {
-    return {
-      "name": name,
-      "description": description,
-      "color": color,
-      "images": images,
-      "price": price,
-      "size": size,
-      "out_of_stock": outOfStock,
-      "seller": seller?.toSnapshot(),
-      "sellerId": sellerId
-    };
+class SellerDetails {
+  String sellerFullName;
+  int sellerId;
+  String sellerPhoneNumber;
+  String sellerEmail;
+  String fcmToken;
+  int houseId;
+  int estateId;
+  String estateName;
+  bool isAdmin;
+
+  SellerDetails({
+    required this.sellerFullName,
+    required this.sellerId,
+    required this.sellerPhoneNumber,
+    required this.sellerEmail,
+    required this.fcmToken,
+    required this.houseId,
+    required this.estateId,
+    required this.estateName,
+    required this.isAdmin,
+  });
+
+  factory SellerDetails.fromJson(Map<String, dynamic> json) {
+    return SellerDetails(
+      sellerFullName: json['sellerFullName'],
+      sellerId: json['sellerId'],
+      sellerPhoneNumber: json['sellerPhoneNumber'],
+      sellerEmail: json['sellerEmail'],
+      fcmToken: json['fcmToken'],
+      houseId: json['houseId'],
+      estateId: json['estateId'],
+      estateName: json['estateName'],
+      isAdmin: json['isAdmin'],
+    );
   }
 }

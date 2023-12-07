@@ -1,21 +1,15 @@
-import 'dart:developer';
-
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart' hide ModalBottomSheetRoute;
 import 'package:get/get.dart';
-import 'package:lottie/lottie.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:residents/components/text.dart';
 import 'package:residents/controllers/community/chat_controller.dart';
-import 'package:residents/models/community/chat.dart';
-import 'package:residents/models/community/convo_item.dart';
-import 'package:residents/models/other/firebase_resident.dart';
-import 'package:residents/services/chat_service.dart';
-import 'package:residents/views/community/chat/contact_list.dart';
-import 'package:timeago/timeago.dart' as timeago;
+import 'package:residents/utils/logger.dart';
 
-import 'components/chat_tile.dart';
-import 'messages.dart';
+import 'package:residents/views/community/chat/contact_list.dart';
+import 'package:residents/views/community/chat/group_chat.dart';
+import 'package:residents/views/community/chat/private_chat.dart';
+
+import '../../../models/chat/message.dart';
 
 class Chats extends StatefulWidget {
   @override
@@ -24,94 +18,111 @@ class Chats extends StatefulWidget {
 
 class _ChatsState extends State<Chats> {
   final ChatController _controller = Get.put(ChatController());
-  late String _estateGroup;
-  late String _estateId;
-
-  FirebaseResident? receiver;
-
-  @override
-  void initState() {
-    super.initState();
-    _estateGroup = _controller.resident.value.estateName ?? "Estate";
-    _estateId = _controller.resident.value.estateId.toString() ?? "";
-  }
 
   @override
   Widget build(BuildContext context) {
-    final residentId = _controller.resident.value.id ?? "";
+    final resident = _controller.resident.value;
+
+    String getSenderName({
+      required String receiverName,
+      required String senderName,
+    }) {
+      return senderName == resident.fullName ? receiverName : senderName;
+    }
+
+    int getReceiverId({
+      required String receiverId,
+      required String senderId,
+    }) {
+      int idSender = int.tryParse(senderId) ?? 0;
+      int idReceiver = int.tryParse(receiverId) ?? 0;
+
+      return idSender == resident.id ? idReceiver : idSender;
+      // return idSender == resident.id ? idReceiver : idSender;
+    }
+
     return SizedBox(
       height: MediaQuery.of(context).size.height,
       child: Stack(
         children: [
           Column(
             children: [
-              StreamBuilder<DatabaseEvent>(
-                stream: ChatService.fetchCommunityConvoInfo(_estateId),
-                builder: (context, snapshot) {
-                  final result = snapshot.data?.snapshot.value as Map<dynamic, dynamic>?;
-
-                  log(result.toString());
-                  if (result != null) {
-                    final convo = ConvoItem.fromJson(result);
-                    log(convo.toString());
-                  }
-                  return ChatTile(
-                    chat: Chat(
-                      name: _estateGroup,
-                      lastMessage: "",
-                      time: "",
-                    ),
-                    onTap: () {
-                      Get.to(() => MessagesScreen(conversationID: _estateId, isCommunity: true));
-                    },
-                  );
-                },
+              ListTile(
+                leading: Icon(
+                  Icons.account_circle_sharp,
+                  size: 52,
+                  color: Colors.black54,
+                ),
+                onTap: () => Get.to(() => GroupChatPage()),
+                title: Text(
+                  resident.estateName,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
               ),
               Expanded(
-                child: StreamBuilder<DatabaseEvent>(
-                  stream: ChatService.fetchUserConvoHistory(residentId.toString()),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      final result = snapshot.data!.snapshot.value as Map<dynamic, dynamic>?;
-                      final convoList =
-                          result?.values.map((convo) => ConvoItem.fromJson(convo)).toList() ?? [];
-                      if (convoList.isNotEmpty) {
-                        return ListView.builder(
-                          itemCount: convoList.length,
-                          itemBuilder: (context, index) {
-                            final convoInfo = convoList[index];
-                            return ChatTile(
-                              chat: Chat(
-                                name: convoInfo.fullName ?? "",
-                                lastMessage: convoInfo.lastMessage ?? "",
-                                time: convoInfo.dateTime != null
-                                    ? timeago.format(DateTime.parse(convoInfo.dateTime!))
-                                    : "",
-                              ),
-                              onTap: () {
-                                Get.to(() => MessagesScreen(convoInfo: convoInfo));
-                              },
-                            );
-                          },
-                        );
-                      }
-                    } else if (snapshot.hasError) {
-                      return Column(
-                        children: [
-                          Spacer(flex: 2),
-                          Center(child: Lottie.asset("assets/lottie/error_lady.json")),
-                          Spacer(flex: 1),
-                          CustomText(
-                            "Error loading chat history.",
-                            textAlign: TextAlign.center,
-                            size: 20,
-                            fontWeight: FontWeight.w300,
-                          ),
-                          Spacer(flex: 3),
-                        ],
+                child: StreamBuilder(
+                  stream: _controller.getRecentChat(),
+                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text("An Error has occurred please retry"),
                       );
                     }
-                    return SizedBox.shrink();
+                    List<Message> messageList = [];
+                    var names = [];
+                    for (int i = 0; i < snapshot.data!.docs.length; i++) {
+                      var parsedMessage =
+                          Message.fromFirestore(snapshot.data!.docs[i]);
+
+                      var name = getSenderName(
+                        receiverName: parsedMessage.receiverName,
+                        senderName: parsedMessage.senderName,
+                      );
+
+                      if (!names.contains(name)) {
+                        names.add(name);
+                        messageList.add(parsedMessage);
+                        logger.i(names);
+                      }
+                    }
+
+                    return ListView.builder(
+                      itemCount: messageList.length,
+                      itemBuilder: (context, index) {
+                        // var message =
+                        //     Message.fromFirestore(snapshot.data!.docs[index]);
+
+                        return ListTile(
+                          leading: Icon(
+                            Icons.account_circle_sharp,
+                            size: 52,
+                            color: const Color.fromARGB(137, 100, 44, 44),
+                          ),
+                          onTap: () => Get.to(
+                            () => PrivateChat(
+                                receiverName: getSenderName(
+                                  receiverName: messageList[index].senderName,
+                                  senderName: messageList[index].receiverName,
+                                ),
+                                receiverId: getReceiverId(
+                                  receiverId: messageList[index].receiverId,
+                                  senderId: messageList[index].senderId,
+                                )),
+                          ),
+                          title: Text(
+                            getSenderName(
+                              receiverName: messageList[index].receiverName,
+                              senderName: messageList[index].senderName,
+                            ),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 18),
+                          ),
+                        );
+                      },
+                    );
                   },
                 ),
               ),

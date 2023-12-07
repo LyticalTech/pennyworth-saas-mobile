@@ -22,7 +22,7 @@ class _BodyState extends State<Body> {
   @override
   void initState() {
     super.initState();
-    _currentImage = widget.product.images.first;
+    _currentImage = widget.product.imagesPaths.first;
   }
 
   @override
@@ -45,9 +45,9 @@ class _BodyState extends State<Body> {
                       children: [
                         Expanded(
                           child: PageView.builder(
-                            itemCount: widget.product.images.length,
+                            itemCount: widget.product.imagesPaths.length,
                             itemBuilder: (context, index) => CachedNetworkImage(
-                              imageUrl: widget.product.images[index],
+                              imageUrl: widget.product.imagesPaths[index],
                               fit: BoxFit.cover,
                             ),
                             onPageChanged: (value) {
@@ -67,7 +67,7 @@ class _BodyState extends State<Body> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: List.generate(
-                              widget.product.images.length,
+                              widget.product.imagesPaths.length,
                               (index) => _buildDot(index: index),
                             ),
                           ),

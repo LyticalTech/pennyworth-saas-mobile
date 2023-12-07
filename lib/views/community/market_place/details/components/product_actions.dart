@@ -6,7 +6,7 @@ import 'package:residents/controllers/community/market_controller.dart';
 import 'package:residents/helpers/constants.dart';
 import 'package:residents/models/community/product.dart';
 import 'package:residents/utils/app_theme.dart';
-import 'package:residents/views/community/chat/messages.dart';
+import 'package:residents/views/community/chat/private_chat.dart';
 
 class ProductActions extends StatefulWidget {
   ProductActions({required this.product});
@@ -23,28 +23,29 @@ class _ProductActionsState extends State<ProductActions> {
   final CommerceController _commerceController = Get.find();
 
   bool isProductSeller() =>
-      widget.product.seller!.email == _chatController.resident.value.email;
+      widget.product.seller.sellerEmail == _chatController.resident.value.email;
 
   late bool _isAvailable = false;
   late String _residentId;
 
   @override
   void initState() {
-    _isAvailable = widget.product.outOfStock;
+    _isAvailable = true;
+    _isAvailable = widget.product.isOutOfStock;
     _residentId = _chatController.resident.value.id.toString();
     super.initState();
   }
 
-  void _gotoConversationScreen() async {
-    String? conversationId = await _chatController.getConversationIdFor(
-      authUserId: _residentId,
-      remoteUserId: widget.product.sellerId,
-    );
-    conversationId ??= "${_residentId}_${widget.product.sellerId}";
-    widget.product.seller?.updateUid = widget.product.sellerId;
-    Get.to(() => MessagesScreen(
-        remoteUser: widget.product.seller, conversationID: conversationId));
-  }
+  // void _gotoConversationScreen() async {
+  //   String? conversationId = await _chatController.getConversationIdFor(
+  //     authUserId: _residentId,
+  //     remoteUserId: widget.product.seller.sellerId.toString(),
+  //   );
+  //   conversationId ??= "${_residentId}_${widget.product.sellerId}";
+  //   widget.product.seller?.updateUid = widget.product.sellerId;
+  //   Get.to(() => MessagesScreen(
+  //       remoteUser: widget.product.seller, conversationID: conversationId));
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -54,13 +55,17 @@ class _ProductActionsState extends State<ProductActions> {
           ? Row(
               children: [
                 Expanded(child: CustomText("Is product still available?")),
-                Switch(
-                  value: _isAvailable,
-                  onChanged: (value) async {
-                    setState(() => _isAvailable = !_isAvailable);
-                    await _commerceController.toggleProduct(
-                        widget.product, _isAvailable);
-                  },
+                Obx(
+                  () => _commerceController.isLoadingProductAvailability.value
+                      ? CircularProgressIndicator()
+                      : Switch(
+                          value: _isAvailable,
+                          onChanged: (value) async {
+                            setState(() => _isAvailable = !_isAvailable);
+                            await _commerceController.toggleProduct(
+                                widget.product, _isAvailable);
+                          },
+                        ),
                 ),
               ],
             )
@@ -75,7 +80,12 @@ class _ProductActionsState extends State<ProductActions> {
                             borderRadius: BorderRadius.circular(12)),
                         backgroundColor: AppTheme.primaryColor,
                       ),
-                      onPressed: _gotoConversationScreen,
+                      onPressed: () => Get.to(
+                        PrivateChat(
+                          receiverId: widget.product.seller.sellerId,
+                          receiverName: widget.product.seller.sellerFullName,
+                        ),
+                      ),
                       child: Text(
                         "Chat With Seller",
                         style: TextStyle(

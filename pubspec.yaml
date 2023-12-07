@@ -31,7 +31,7 @@ dependencies:
   async: ^2.11.0
   cached_network_image: ^3.2.3
   carousel_slider: ^4.1.1
-  cloud_firestore: ^4.2.0
+  cloud_firestore: ^4.13.3
   cloud_functions: ^4.0.6
   cupertino_icons: ^1.0.5
   curved_navigation_bar: ^1.0.3
@@ -67,6 +67,7 @@ dependencies:
       path: modal_bottom_sheet
   overlay_support: ^2.1.0
   path_provider: null
+  rxdart: ^0.27.7
   shared_preferences: ^2.0.15
   shimmer: ^3.0.0
   timeago: ^3.3.0
@@ -75,7 +76,7 @@ dependencies:
   whatsapp_unilink: ^2.1.0
 
 dev_dependencies:
-  flutter_lints: ^2.0.1
+  flutter_lints: ^3.0.1
   flutter_test:
     sdk: flutter
 

@@ -1,13 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:residents/controllers/auth/auth_controller.dart';
 import 'package:residents/services/auth_services.dart';
 import 'package:residents/services/preference_service.dart';
-import 'package:residents/utils/logger.dart';
 import 'package:residents/views/auth/sign_in_screen.dart';
 
 class ApiService {

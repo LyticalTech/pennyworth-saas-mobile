@@ -37,9 +37,9 @@ class ItemCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Hero(
-                tag: product.id!,
+                tag: product.id,
                 child: CachedNetworkImage(
-                  imageUrl: product.images.first,
+                  imageUrl: product.imagesPaths.first,
                   alignment: Alignment.topCenter,
                   fit: BoxFit.cover,
                   progressIndicatorBuilder: (context, _, progress) {

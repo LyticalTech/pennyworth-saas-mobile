@@ -15,6 +15,7 @@ class NetworkHelper {
         InterceptorsWrapper(onRequest:
             (RequestOptions options, RequestInterceptorHandler handler) {
           options.headers['authorization'] = 'Bearer ${AuthServices().token}';
+          logger.i(AuthServices().token);
           handler.next(options);
         }, onError: (DioException e, ErrorInterceptorHandler handler) async {
           handler.reject(e);

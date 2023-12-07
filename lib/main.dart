@@ -10,7 +10,6 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:residents/components/constants.dart';
 import 'package:residents/controllers/auth/auth_controller.dart';
 import 'package:residents/firebase_options.dart';
 import 'package:residents/services/preference_service.dart';
@@ -77,9 +76,11 @@ class _ResidentsState extends State<Residents> {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
-        primaryColor: kPrimaryColor,
-      ),
+          primarySwatch: Colors.deepOrange,
+          primaryColor: Colors.deepOrange,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.red,
+          )),
       home: isAuthenticated ? WelcomeScreen() : SignIn(),
       onInit: () async {
         Get.put(AuthController());

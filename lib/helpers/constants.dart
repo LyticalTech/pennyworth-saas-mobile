@@ -42,7 +42,10 @@ const Map<String, Color> colors = {
 
 class Endpoints {
   static const attendance = "api/Admin/attendance";
+  static const createProduct = "Product/create";
+  static const getProduct = "Product/products";
   static const baseUrl = "https://pennyworth-saas.azurewebsites.net/api/";
+  static const productAvailability = "Product/available";
   static const bookFacility = "AssetsBooking/book-asset";
   static const bookedFacility = "AssetsBooking/get-book-asset";
   static const checkBookingAvailability = "api/Facility/book-validity";
@@ -58,6 +61,7 @@ class Endpoints {
   static const login = "Auth/login-resident";
   static const generateCode = "SecurityCode/generate";
   static const getActiveCodes = "SecurityCode/active";
+  static const getAllContacts = "User/get-residents-by-estate";
   static const cancelCode = "SecurityCode/cancel";
   static const getMessageBoard = "Notifications/estate/";
   static const getInActiveCodes = "SecurityCode/inactive";
