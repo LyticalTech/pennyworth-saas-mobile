@@ -36,6 +36,7 @@ import '../../views/auth/failed_screen.dart';
 
 class AuthController extends GetxController {
   RxString title = 'SIGN IN'.obs;
+  var viewPassword = false.obs;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 

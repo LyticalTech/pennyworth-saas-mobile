@@ -12,24 +12,26 @@ class AuthTextField extends StatelessWidget {
   final int maxLine;
   final bool? enable;
   final TextAlign? align;
-  
+  final Widget? trailingIcon;
+
   final bool obscureText;
 
-  const AuthTextField({
-    Key? key,
-    this.controller,
-    this.textInputType,
-    this.hintText,
-    this.validator,
-    this.focusNode,
-    this.autofocus = false,
-    this.icon,
-    this.maxLine = 1,
-    this.initialValue,
-    this.enable,
-    this.align,
-    this.obscureText = false
-  }) : super(key: key);
+  const AuthTextField(
+      {Key? key,
+      this.controller,
+      this.textInputType,
+      this.hintText,
+      this.validator,
+      this.focusNode,
+      this.autofocus = false,
+      this.icon,
+      this.maxLine = 1,
+      this.initialValue,
+      this.enable,
+      this.align,
+      this.obscureText = false,
+      this.trailingIcon})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +64,7 @@ class AuthTextField extends StatelessWidget {
           icon,
           color: Colors.orange,
         ),
+        suffixIcon: trailingIcon,
         hintText: hintText,
       ),
     );

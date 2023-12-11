@@ -61,13 +61,30 @@ class SignIn extends GetResponsiveView<AuthController> {
                           icon: Icons.mail_outline,
                         ),
                         SizedBox(height: 10),
-                        AuthTextField(
-                          controller: _password,
-                          textInputType: TextInputType.visiblePassword,
-                          hintText: 'Password',
-                          validator: Validator.passwordValidator,
-                          icon: Icons.lock_outline,
-                          obscureText: true,
+                        Obx(
+                          () => AuthTextField(
+                            controller: _password,
+                            textInputType: TextInputType.visiblePassword,
+                            hintText: 'Password',
+                            validator: Validator.passwordValidator,
+                            icon: Icons.lock_outline,
+                            obscureText: !controller.viewPassword.value,
+                            trailingIcon: IconButton(
+                              icon: !controller.viewPassword.value
+                                  ? Icon(
+                                      Icons.visibility,
+                                      color: Colors.orange,
+                                    )
+                                  : Icon(
+                                      Icons.visibility_off,
+                                      color: Colors.orange,
+                                    ),
+                              onPressed: () {
+                                controller.viewPassword.value =
+                                    !controller.viewPassword.value;
+                              },
+                            ),
+                          ),
                         ),
                         SizedBox(height: 24),
                         Obx(

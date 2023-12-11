@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:residents/components/action_button.dart';
 import 'package:residents/components/code_generator_card.dart';
-import 'package:residents/controllers/auth/app_user_controller.dart';
 import 'package:residents/controllers/auth/auth_controller.dart';
 import 'package:residents/size_config.dart';
 import 'package:residents/views/shield/codes_view/all_codes_view.dart';
@@ -12,7 +11,7 @@ import 'package:residents/views/shield/codes_view/cancel_code.dart';
 import '../controllers/shield/code_controller.dart';
 
 class Home extends StatefulWidget {
-  Home({Key? key}) : super(key: key);
+  Home({super.key});
 
   @override
   State<Home> createState() => _HomeState();
@@ -77,10 +76,10 @@ class _HomeState extends State<Home> {
                     crossAxisSpacing: 20,
                     children: [
                       ActionButton(
-                        buttonColor: Colors.orange,
+                        buttonColor: Colors.deepOrange,
                         icon: const Icon(
                           Icons.vpn_key_outlined,
-                          color: Colors.white,
+                          color: Colors.deepOrange,
                         ),
                         label: 'Generate Code',
                         press: () {
@@ -91,13 +90,13 @@ class _HomeState extends State<Home> {
                             builder: (_) => CodeGeneratorDialog(),
                           );
                         },
-                        textColor: Colors.white,
+                        textColor: Colors.deepOrange,
                       ),
                       ActionButton(
-                        buttonColor: Colors.white,
+                        buttonColor: Colors.deepOrange,
                         icon: const Icon(
                           Icons.fullscreen_outlined,
-                          color: Colors.orangeAccent,
+                          color: Colors.deepOrange,
                         ),
                         label: 'View Codes',
                         press: () {
@@ -107,7 +106,7 @@ class _HomeState extends State<Home> {
                             transition: Transition.fadeIn,
                           );
                         },
-                        textColor: Colors.orange,
+                        textColor: Colors.deepOrange,
                       ),
                       ActionButton(
                         buttonColor: Colors.white,
@@ -123,7 +122,7 @@ class _HomeState extends State<Home> {
                             transition: Transition.fadeIn,
                           );
                         },
-                        textColor: Colors.orange,
+                        textColor: Colors.deepOrange,
                       ),
                     ],
                   ),

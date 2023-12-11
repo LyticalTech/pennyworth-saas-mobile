@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:residents/controllers/community/chat_controller.dart';
+import 'package:residents/utils/dates_utils.dart';
 
 import '../../../../models/chat/message.dart';
 
@@ -42,7 +43,7 @@ class MessageBubble extends StatelessWidget {
             ),
             SizedBox(height: 5.0),
             Text(
-              message.date.toString(),
+              formatDateTime(message.date),
               style: TextStyle(
                 fontStyle: FontStyle.italic,
                 color: Colors.white,
