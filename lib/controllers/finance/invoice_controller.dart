@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -15,6 +16,7 @@ import 'package:residents/models/finance/service_charge.dart';
 import 'package:residents/services/api_service.dart';
 import 'package:residents/utils/environment.dart';
 import 'package:residents/utils/logger.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FinanceController extends GetxController with StateMixin<List<Invoice>> {
   List<Invoice> invoices = <Invoice>[].obs;
@@ -115,85 +117,115 @@ class FinanceController extends GetxController with StateMixin<List<Invoice>> {
     }
   }
 
-  Future<bool> initiatePayment(BuildContext context, Invoice invoice) async {
+  initiatePayment(BuildContext context, Invoice invoice) async {
     loading.value = true;
 
     try {
-      final Customer customer = Customer(
-        name: resident.value.fullName,
-        phoneNumber: resident.value.phone,
-        email: resident.value.email,
-      );
+      const endpoint = "${Endpoints.baseUrl}${Endpoints.payBill}";
+      var response = await ApiService.putRequest(
+          endpoint, {"billId": invoice.invoiceNumber});
+      logger.i(response);
 
-      final Flutterwave flutterwave = Flutterwave(
-        context: context,
-        publicKey: Environment.flutterwavePublicKey,
-        txRef: "${resident.value.id}_${DateTime.now().microsecondsSinceEpoch}",
-        amount: invoice.outstanding.toString(),
-        currency: "NGN",
-        customer: customer,
-        paymentOptions: "ussd, card",
-        customization: Customization(title: "Invoice Payment"),
-        isTestMode: false,
+      if (response['status'] != null && response['status']) {
+        String url = jsonDecode(response['response'])['data']['link'];
+        logger.i(url[1]);
+        await launchUrl(Uri.parse(url));
+        // serviceCharges = parseServiceCharges(response['response']);
 
-        // style: style,
-        redirectUrl: 'lyticaltechnology.com/verify',
-      );
-
-      final ChargeResponse response = await flutterwave.charge();
-      if (response.success == true) {
-        final verificationResponse = await _verifyPayment({
-          "invoiceId": invoice.id,
-          "amountPaid": invoice.outstanding.toString(),
-          "paymentReference": response.transactionId,
-        });
-        Get.showSnackbar(
-          GetSnackBar(
-            message: "Invoice successful!",
-            duration: Duration(seconds: 5),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-        if (verificationResponse) {
-          await getInvoices();
-        }
-
-        return verificationResponse;
-      } else {
-        Get.showSnackbar(
-          GetSnackBar(
-            message: "Payment unsuccessful!",
-            duration: Duration(seconds: 5),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return false;
+        logger.i(serviceCharges);
       }
-    } on SocketException catch (_) {
+    } catch (e) {
       Get.showSnackbar(
         GetSnackBar(
-          title: "Network Error",
-          message: "Please check your connection!",
+          message: "Payment unsuccessful!",
           duration: Duration(seconds: 5),
           backgroundColor: Colors.red,
         ),
       );
-      return false;
-    } catch (error) {
-      Get.showSnackbar(
-        GetSnackBar(
-          title: "Payment Error",
-          message: "Unable to process payment!",
-          duration: Duration(seconds: 5),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return false;
     } finally {
       loading.value = false;
     }
   }
+
+  // Future<bool> initiatePayment(BuildContext context, Invoice invoice) async {
+  //   loading.value = true;
+
+  //   try {
+  //     final Customer customer = Customer(
+  //       name: resident.value.fullName,
+  //       phoneNumber: resident.value.phone,
+  //       email: resident.value.email,
+  //     );
+
+  //     final Flutterwave flutterwave = Flutterwave(
+  //       context: context,
+  //       publicKey: Environment.flutterwavePublicKey,
+  //       txRef: "${resident.value.id}_${DateTime.now().microsecondsSinceEpoch}",
+  //       amount: invoice.outstanding.toString(),
+  //       currency: "NGN",
+  //       customer: customer,
+  //       paymentOptions: "ussd, card",
+  //       customization: Customization(title: "Invoice Payment"),
+  //       isTestMode: false,
+
+  //       // style: style,
+  //       redirectUrl: 'lyticaltechnology.com/verify',
+  //     );
+
+  //     final ChargeResponse response = await flutterwave.charge();
+  //     if (response.success == true) {
+  //       final verificationResponse = await _verifyPayment({
+  //         "invoiceId": invoice.id,
+  //         "amountPaid": invoice.outstanding.toString(),
+  //         "paymentReference": response.transactionId,
+  //       });
+  //       Get.showSnackbar(
+  //         GetSnackBar(
+  //           message: "Invoice successful!",
+  //           duration: Duration(seconds: 5),
+  //           backgroundColor: Colors.green,
+  //         ),
+  //       );
+
+  //       if (verificationResponse) {
+  //         await getInvoices();
+  //       }
+
+  //       return verificationResponse;
+  //     } else {
+  //       Get.showSnackbar(
+  //         GetSnackBar(
+  //           message: "Payment unsuccessful!",
+  //           duration: Duration(seconds: 5),
+  //           backgroundColor: Colors.red,
+  //         ),
+  //       );
+  //       return false;
+  //     }
+  //   } on SocketException catch (_) {
+  //     Get.showSnackbar(
+  //       GetSnackBar(
+  //         title: "Network Error",
+  //         message: "Please check your connection!",
+  //         duration: Duration(seconds: 5),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //     return false;
+  //   } catch (error) {
+  //     Get.showSnackbar(
+  //       GetSnackBar(
+  //         title: "Payment Error",
+  //         message: "Unable to process payment!",
+  //         duration: Duration(seconds: 5),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //     return false;
+  //   } finally {
+  //     loading.value = false;
+  //   }
+  // }
 
   Future<bool> _verifyPayment(Map<String, dynamic> body) async {
     try {

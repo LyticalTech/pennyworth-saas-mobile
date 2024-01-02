@@ -33,6 +33,28 @@ class ApiService {
 
     return result;
   }
+  static Future<Map<String, dynamic>> putRequest(
+      String endpoint, Map<String, dynamic> body) async {
+    Map<String, String> headerData = await _getHeaderData();
+    var result;
+    try {
+      http.Response response = await http.put(
+        Uri.parse(endpoint),
+        body: jsonEncode(body),
+        headers: headerData,
+      );
+
+      if (response.statusCode >= 200 || response.statusCode <= 299) {
+        result = {'status': true, 'response': response.body, 'error': false};
+      }
+    } on SocketException catch (e) {
+      result = {'status': false, 'error': true, 'message': e.message};
+    } catch (e) {
+      result = {'status': false, 'error': true, 'message': e.toString()};
+    }
+
+    return result;
+  }
 
   static Future<Map<String, dynamic>> getRequest(
     String endpoint, {

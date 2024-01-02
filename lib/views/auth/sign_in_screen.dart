@@ -9,7 +9,7 @@ import 'components/auth_button.dart';
 import 'components/auth_text_field.dart';
 
 class SignIn extends GetResponsiveView<AuthController> {
-  SignIn({Key? key}) : super(key: key) {
+  SignIn({super.key}) {
     Get.lazyPut(() => AuthController());
   }
 

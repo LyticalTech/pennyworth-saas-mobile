@@ -72,4 +72,5 @@ class Endpoints {
   static const sendPanicMessage = "/Notifications/sos";
 
   static const serviceCharge = "api/Finance/service-charge";
+  static const payBill = "/Invoicing/pay-bill";
 }

@@ -20,12 +20,12 @@ class InvoiceDetail extends StatelessWidget {
   final AppUser? appUser = AppUserController.appUser;
 
   Future<void> _handlePayment(BuildContext context) async {
-    bool successful = await _controller.initiatePayment(context, invoice);
-    if (successful) {
-      waitAndExec(5, () {
-        Navigator.pop(context);
-      });
-    }
+    await _controller.initiatePayment(context, invoice);
+    // if (successful) {
+    //   waitAndExec(5, () {
+    //     Navigator.pop(context);
+    //   });
+    // }
   }
 
   @override

@@ -4,11 +4,9 @@ import 'package:get/get.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:residents/controllers/community/chat_controller.dart';
 import 'package:residents/utils/logger.dart';
-
 import 'package:residents/views/community/chat/contact_list.dart';
 import 'package:residents/views/community/chat/group_chat.dart';
 import 'package:residents/views/community/chat/private_chat.dart';
-
 import '../../../models/chat/message.dart';
 
 class Chats extends StatefulWidget {
